@@ -22,6 +22,7 @@ import {
 import { Controller } from "react-hook-form";
 import { Select, SelectItem, SelectTrigger } from "../ui/select";
 import { SelectContent, SelectValue } from "@radix-ui/react-select";
+polyfillCountryFlagEmojis();
 const CountrySelectField = ({
   control,
   name,
@@ -30,7 +31,7 @@ const CountrySelectField = ({
   required,
 }: CountrySelectProps) => {
   const options = useMemo(() => countryList().getData(), []);
-  polyfillCountryFlagEmojis();
+
   const getFlagEmoji = (countryCode: string) => {
     const codePoints = countryCode
       .toUpperCase()
