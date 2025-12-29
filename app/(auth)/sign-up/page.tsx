@@ -5,14 +5,18 @@ import InputField from "@/components/forms/InputField";
 import SelectField from "@/components/forms/SelectField";
 
 import { Button } from "@/components/ui/button";
+import { singUpWithEmail } from "@/lib/actions/auth.actions";
 import {
   INVESTMENT_GOALS,
   PREFERRED_INDUSTRIES,
   RISK_TOLERANCE_OPTIONS,
 } from "@/lib/constants";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 const SignUp = () => {
+  const router = useRouter();
   const {
     control,
     register,
@@ -26,15 +30,19 @@ const SignUp = () => {
       country: "IL",
       investmentGoals: "Growth",
       riskTolerance: "Medium",
-      preferredIndustry: "technology",
+      preferredIndustry: "Technology",
     },
     mode: "onBlur",
   });
   const onSubmit = async (data: SignUpFormData) => {
     try {
-      console.log(data);
+      const res = await singUpWithEmail(data);
+      if (res.success) {
+        router.push("/");
+      }
     } catch (error) {
       console.error("Sign-up error:", error);
+      toast.error("Sign-up failed. Please try again.");
     }
   };
   return (
@@ -94,7 +102,7 @@ const SignUp = () => {
         />
         <SelectField
           name="risk Tolerance"
-          label="risk Tolerance"
+          label="Risk Tolerance"
           placeholder="Select your risk level"
           control={control}
           options={RISK_TOLERANCE_OPTIONS}
@@ -103,8 +111,8 @@ const SignUp = () => {
         />
         <SelectField
           name="preferredIndustry"
-          label="preferredIndustry"
-          placeholder="Select your ipreferred Industry"
+          label="Preferred Industry"
+          placeholder="Select your preferred Industry"
           control={control}
           options={PREFERRED_INDUSTRIES}
           error={errors.preferredIndustry}
