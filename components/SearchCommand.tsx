@@ -1,15 +1,12 @@
 "use client"
-import { use, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "./ui/command"
-
-import { redirect, useRouter } from "next/navigation"
 
 import { Star, TrendingUp } from "lucide-react"
 
 import { searchStocks } from "@/lib/actions/finnhub.actions"
 
 import { useDebounce } from "@/hooks/useDebounce"
-import { set } from "mongoose"
 import Link from "next/link"
 
 export default function SearchCommand({ initialStocks }: SearchCommandProps) {
@@ -59,7 +56,7 @@ export default function SearchCommand({ initialStocks }: SearchCommandProps) {
           {loading ? (
             <CommandEmpty>loading stock</CommandEmpty>
           ) : displayStocks?.length === 0 ? (
-            <div>{isSearchMode ? "no  result found" : " no stock avilabe"}</div>
+            <div>{isSearchMode ? "No results found" : "No stocks available"}</div>
           ) : (
             <CommandGroup>
               {displayStocks?.map((stock) => {
