@@ -56,7 +56,7 @@ export default function SearchCommand({ initialStocks }: SearchCommandProps) {
           {loading ? (
             <CommandEmpty>loading stock</CommandEmpty>
           ) : displayStocks?.length === 0 ? (
-            <div>{isSearchMode ? "no  result found" : " no stock avilabe"}</div>
+            <div>{isSearchMode ? "No results found" : "No stocks available"}</div>
           ) : (
             <CommandGroup>
               {displayStocks?.map((stock) => {
