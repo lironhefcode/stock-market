@@ -10,7 +10,6 @@ import {
 import { useRouter } from "next/navigation"
 import { Button } from "./ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { use } from "react"
 import { LogOut } from "lucide-react"
 import Navitems from "./Navitems"
 import { signOut } from "@/lib/actions/auth.actions"
