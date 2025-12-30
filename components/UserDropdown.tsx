@@ -1,4 +1,4 @@
-"use client";
+"use client"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -6,33 +6,28 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { useRouter } from "next/navigation";
-import { Button } from "./ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { use } from "react";
-import { LogOut } from "lucide-react";
-import Navitems from "./Navitems";
-import { signOut } from "@/lib/actions/auth.actions";
-const UserDropdown = ({ user }: { user: User }) => {
-  const router = useRouter();
+} from "@/components/ui/dropdown-menu"
+import { useRouter } from "next/navigation"
+import { Button } from "./ui/button"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { use } from "react"
+import { LogOut } from "lucide-react"
+import Navitems from "./Navitems"
+import { signOut } from "@/lib/actions/auth.actions"
+const UserDropdown = ({ user, initialStocks }: { user: User; initialStocks: StockWithWatchlistStatus[] }) => {
+  const router = useRouter()
   const handleSignOut = async () => {
-    await signOut();
-    router.push("/sign-in");
-  };
+    await signOut()
+    router.push("/sign-in")
+  }
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          className=" flex items-center gap-3 text-gray-4 hover:text-yellow-500 border-0"
-        >
+        <Button variant="ghost" className=" flex items-center gap-3 text-gray-4 hover:text-yellow-500 border-0">
           <Avatar>
             <AvatarImage src="https://github.com/" />
-            <AvatarFallback className="bg-yellow-500 text-yellow-900 text-sm font-bold">
-              {user.name[0]}
-            </AvatarFallback>
+            <AvatarFallback className="bg-yellow-500 text-yellow-900 text-sm font-bold">{user.name[0]}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
@@ -46,9 +41,7 @@ const UserDropdown = ({ user }: { user: User }) => {
               </AvatarFallback>
             </Avatar>
             <div className="flex flex-col">
-              <span className="text-base font-medium text-gray-400">
-                {user.name}
-              </span>
+              <span className="text-base font-medium text-gray-400">{user.name}</span>
               <span className="text-sm  text-gray-500">{user.email}</span>
             </div>
           </div>
@@ -61,10 +54,10 @@ const UserDropdown = ({ user }: { user: User }) => {
           <LogOut className="h-4 w-4 mr-2 hidden sm:block" /> Logout
         </DropdownMenuItem>
         <nav className=" sm:hidden">
-          <Navitems />
+          <Navitems initialStocks={initialStocks} />
         </nav>
       </DropdownMenuContent>
     </DropdownMenu>
-  );
-};
-export default UserDropdown;
+  )
+}
+export default UserDropdown
