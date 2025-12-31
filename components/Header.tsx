@@ -3,9 +3,13 @@ import Link from "next/link"
 import Navitems from "./Navitems"
 import UserDropdown from "./UserDropdown"
 import { searchStocks } from "@/lib/actions/finnhub.actions"
+import { getWatchlistSymbolsByEmail } from "@/lib/actions/watchlist.actions"
+import { WatchlistItem } from "@/db/models/watchlist"
 
 const Header = async ({ user }: { user: User }) => {
   const initialStocks = await searchStocks()
+  const watchlistSymbols = (await getWatchlistSymbolsByEmail(user.email)) as string[]
+
   return (
     <header className="sticky top-0 header">
       <div className="container header-wrapper">
@@ -19,9 +23,9 @@ const Header = async ({ user }: { user: User }) => {
           />
         </Link>
         <nav className="hidden sm:block">
-          <Navitems initialStocks={initialStocks} />
+          <Navitems watchlistSymbols={watchlistSymbols} initialStocks={initialStocks} />
         </nav>
-        <UserDropdown user={user} initialStocks={initialStocks} />
+        <UserDropdown watchlistSymbols={watchlistSymbols} user={user} initialStocks={initialStocks} />
       </div>
     </header>
   )
