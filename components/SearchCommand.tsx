@@ -9,15 +9,36 @@ import { searchStocks } from "@/lib/actions/finnhub.actions"
 import { useDebounce } from "@/hooks/useDebounce"
 import Link from "next/link"
 
-export default function SearchCommand({ initialStocks }: SearchCommandProps) {
-  const router = useRouter()
+import { addToWatchlist } from "@/lib/actions/watchlist.actions"
+
+import { toast } from "sonner"
+import { getSession } from "@/lib/actions/auth.actions"
+
+export default function SearchCommand({ initialStocks, watchlistSymbols }: SearchCommandProps) {
   const [open, setOpen] = useState(false)
   const [loading, setloading] = useState(false)
   const [search, setSearch] = useState("")
   const [stocks, setStocks] = useState<StockWithWatchlistStatus[]>(initialStocks)
+  const [watchlist, setWatchlist] = useState<string[]>(watchlistSymbols)
   const isSearchMode = !!search.trim()
   const displayStocks = isSearchMode ? stocks : stocks?.slice(0, 10)
+  const handleWatchlistChange = async (symbol: string, company: string) => {
+    setWatchlist([symbol, ...watchlist])
+    try {
+      const { session, success, error } = await getSession()
+      if (!session?.user) {
+        throw new Error(error)
+      }
+      const res = await addToWatchlist(symbol, company, session.user.id)
 
+      if (!res.success) {
+        throw new Error(error)
+      }
+    } catch (error) {
+      toast.error("failed")
+      setWatchlist([...watchlist])
+    }
+  }
   const handleSearch = async () => {
     if (!isSearchMode) {
       return setStocks(initialStocks)
@@ -60,6 +81,7 @@ export default function SearchCommand({ initialStocks }: SearchCommandProps) {
           ) : (
             <CommandGroup>
               {displayStocks?.map((stock) => {
+                const isAdded = watchlist.some((item) => item == stock.symbol)
                 return (
                   <CommandItem
                     className="search-item justify-between"
@@ -78,8 +100,14 @@ export default function SearchCommand({ initialStocks }: SearchCommandProps) {
                         </div>
                       </div>
                     </Link>
-
-                    <Star className="size-4 text-yellow-500" />
+                    <div
+                      onClick={() => {
+                        console.log("click")
+                        isAdded ? null : handleWatchlistChange(stock.symbol, stock.name)
+                      }}
+                    >
+                      <Star className={["size-4", " text-yellow-500", isAdded ? "fill-amber-300" : ""].join(" ")} />
+                    </div>
                   </CommandItem>
                 )
               })}

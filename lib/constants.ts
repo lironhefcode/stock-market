@@ -1,8 +1,8 @@
 export const NAV_ITEMS = [
   { href: "/", title: "Dashboard" },
   { href: "/search", title: "Search" },
-  // { href: '/watchlist', label: 'Watchlist' },
-];
+  { href: "/watchlist", title: "Watchlist" },
+]
 
 // Sign-up form select options
 export const INVESTMENT_GOALS = [
@@ -10,13 +10,13 @@ export const INVESTMENT_GOALS = [
   { value: "Income", label: "Income" },
   { value: "Balanced", label: "Balanced" },
   { value: "Conservative", label: "Conservative" },
-];
+]
 
 export const RISK_TOLERANCE_OPTIONS = [
   { value: "Low", label: "Low" },
   { value: "Medium", label: "Medium" },
   { value: "High", label: "High" },
-];
+]
 
 export const PREFERRED_INDUSTRIES = [
   { value: "Technology", label: "Technology" },
@@ -24,17 +24,17 @@ export const PREFERRED_INDUSTRIES = [
   { value: "Finance", label: "Finance" },
   { value: "Energy", label: "Energy" },
   { value: "Consumer Goods", label: "Consumer Goods" },
-];
+]
 
 export const ALERT_TYPE_OPTIONS = [
   { value: "upper", label: "Upper" },
   { value: "lower", label: "Lower" },
-];
+]
 
 export const CONDITION_OPTIONS = [
   { value: "greater", label: "Greater than (>)" },
   { value: "less", label: "Less than (<)" },
-];
+]
 
 // TradingView Charts
 export const MARKET_OVERVIEW_WIDGET_CONFIG = {
@@ -93,7 +93,7 @@ export const MARKET_OVERVIEW_WIDGET_CONFIG = {
   height: 600, // height in px
   showSymbolLogo: true, // show logo next to symbols
   showChart: true, // display mini chart
-};
+}
 
 export const HEATMAP_WIDGET_CONFIG = {
   dataSource: "SPX500",
@@ -112,7 +112,7 @@ export const HEATMAP_WIDGET_CONFIG = {
   isMonoSize: false,
   width: "100%",
   height: "600",
-};
+}
 
 export const TOP_STORIES_WIDGET_CONFIG = {
   displayMode: "regular",
@@ -123,7 +123,7 @@ export const TOP_STORIES_WIDGET_CONFIG = {
   market: "stock",
   width: "100%",
   height: "600",
-};
+}
 
 export const MARKET_DATA_WIDGET_CONFIG = {
   title: "Stocks",
@@ -168,7 +168,7 @@ export const MARKET_DATA_WIDGET_CONFIG = {
       ],
     },
   ],
-};
+}
 
 export const SYMBOL_INFO_WIDGET_CONFIG = (symbol: string) => ({
   symbol: symbol.toUpperCase(),
@@ -177,7 +177,7 @@ export const SYMBOL_INFO_WIDGET_CONFIG = (symbol: string) => ({
   locale: "en",
   width: "100%",
   height: 170,
-});
+})
 
 export const CANDLE_CHART_WIDGET_CONFIG = (symbol: string) => ({
   allow_symbol_change: false,
@@ -203,7 +203,7 @@ export const CANDLE_CHART_WIDGET_CONFIG = (symbol: string) => ({
   studies: [],
   width: "100%",
   height: 600,
-});
+})
 
 export const BASELINE_WIDGET_CONFIG = (symbol: string) => ({
   allow_symbol_change: false,
@@ -229,7 +229,7 @@ export const BASELINE_WIDGET_CONFIG = (symbol: string) => ({
   studies: [],
   width: "100%",
   height: 600,
-});
+})
 
 export const TECHNICAL_ANALYSIS_WIDGET_CONFIG = (symbol: string) => ({
   symbol: symbol.toUpperCase(),
@@ -240,7 +240,7 @@ export const TECHNICAL_ANALYSIS_WIDGET_CONFIG = (symbol: string) => ({
   height: 400,
   interval: "1h",
   largeChartUrl: "",
-});
+})
 
 export const COMPANY_PROFILE_WIDGET_CONFIG = (symbol: string) => ({
   symbol: symbol.toUpperCase(),
@@ -249,7 +249,7 @@ export const COMPANY_PROFILE_WIDGET_CONFIG = (symbol: string) => ({
   locale: "en",
   width: "100%",
   height: 440,
-});
+})
 
 export const COMPANY_FINANCIALS_WIDGET_CONFIG = (symbol: string) => ({
   symbol: symbol.toUpperCase(),
@@ -260,7 +260,7 @@ export const COMPANY_FINANCIALS_WIDGET_CONFIG = (symbol: string) => ({
   height: 464,
   displayMode: "regular",
   largeChartUrl: "",
-});
+})
 
 export const POPULAR_STOCK_SYMBOLS = [
   // Tech Giants (the big technology companies)
@@ -322,10 +322,10 @@ export const POPULAR_STOCK_SYMBOLS = [
   "DIDI",
   "GRAB",
   "SE",
-];
+]
 
 export const NO_MARKET_NEWS =
-  '<p class="mobile-text" style="margin:0 0 20px 0;font-size:16px;line-height:1.6;color:#4b5563;">No market news available today. Please check back tomorrow.</p>';
+  '<p class="mobile-text" style="margin:0 0 20px 0;font-size:16px;line-height:1.6;color:#4b5563;">No market news available today. Please check back tomorrow.</p>'
 
 export const WATCHLIST_TABLE_HEADER = [
   "Company",
@@ -336,4 +336,4 @@ export const WATCHLIST_TABLE_HEADER = [
   "P/E Ratio",
   "Alert",
   "Action",
-];
+]

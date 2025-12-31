@@ -13,7 +13,15 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { LogOut } from "lucide-react"
 import Navitems from "./Navitems"
 import { signOut } from "@/lib/actions/auth.actions"
-const UserDropdown = ({ user, initialStocks }: { user: User; initialStocks: StockWithWatchlistStatus[] }) => {
+const UserDropdown = ({
+  user,
+  initialStocks,
+  watchlistSymbols,
+}: {
+  user: User
+  initialStocks: StockWithWatchlistStatus[]
+  watchlistSymbols: string[]
+}) => {
   const router = useRouter()
   const handleSignOut = async () => {
     await signOut()
@@ -53,7 +61,7 @@ const UserDropdown = ({ user, initialStocks }: { user: User; initialStocks: Stoc
           <LogOut className="h-4 w-4 mr-2 hidden sm:block" /> Logout
         </DropdownMenuItem>
         <nav className=" sm:hidden">
-          <Navitems initialStocks={initialStocks} />
+          <Navitems watchlistSymbols={watchlistSymbols} initialStocks={initialStocks} />
         </nav>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -22,6 +22,43 @@ async function fetchJSON<T>(url: string, revalidateSeconds?: number): Promise<T>
 
 export { fetchJSON }
 
+export async function getStockQuotes(symbols: string[]): Promise<Record<string, QuoteData>> {
+  try {
+    const token = process.env.FINNHUB_API_KEY ?? NEXT_PUBLIC_FINNHUB_API_KEY
+    if (!token) {
+      console.error("FINNHUB API key is not configured")
+      return {}
+    }
+
+    const cleanSymbols = symbols.map((s) => s?.trim().toUpperCase()).filter((s): s is string => Boolean(s))
+
+    if (cleanSymbols.length === 0) {
+      return {}
+    }
+
+    const quotes: Record<string, QuoteData> = {}
+
+    // Fetch quotes for all symbols in parallel
+    await Promise.all(
+      cleanSymbols.map(async (symbol) => {
+        try {
+          const url = `${FINNHUB_BASE_URL}/quote?symbol=${encodeURIComponent(symbol)}&token=${token}`
+          const quote = await fetchJSON<QuoteData>(url, 60) // Cache for 60 seconds
+          quotes[symbol] = quote
+        } catch (e) {
+          console.error(`Error fetching quote for ${symbol}:`, e)
+          // Don't add to quotes object if fetch fails
+        }
+      })
+    )
+
+    return quotes
+  } catch (err) {
+    console.error("Error in getStockQuotes:", err)
+    return {}
+  }
+}
+
 export async function getNews(symbols?: string[]): Promise<MarketNewsArticle[]> {
   try {
     const range = getDateRange(5)
