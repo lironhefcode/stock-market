@@ -119,7 +119,7 @@ export default function WatchlistTable({ watchlistItems, quotes, profiles, metri
                   {symbol}
                 </Link>
               </TableCell>
-              <TableCell className="table-cell">{profile.name}</TableCell>
+              <TableCell className="table-cell">{profile?.name ?? "N/A"}</TableCell>
               <TableCell className="table-cell">{formatPrice(currentPrice)}</TableCell>
               <TableCell className="table-cell">
                 <div className={`flex items-center gap-1 ${isPositive ? "text-green-500" : "text-red-500"}`}>
