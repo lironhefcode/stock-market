@@ -22,43 +22,6 @@ async function fetchJSON<T>(url: string, revalidateSeconds?: number): Promise<T>
 
 export { fetchJSON }
 
-export async function getStockQuotes(symbols: string[]): Promise<Record<string, QuoteData>> {
-  try {
-    const token = process.env.FINNHUB_API_KEY ?? NEXT_PUBLIC_FINNHUB_API_KEY
-    if (!token) {
-      console.error("FINNHUB API key is not configured")
-      return {}
-    }
-
-    const cleanSymbols = symbols.map((s) => s?.trim().toUpperCase()).filter((s): s is string => Boolean(s))
-
-    if (cleanSymbols.length === 0) {
-      return {}
-    }
-
-    const quotes: Record<string, QuoteData> = {}
-
-    // Fetch quotes for all symbols in parallel
-    await Promise.all(
-      cleanSymbols.map(async (symbol) => {
-        try {
-          const url = `${FINNHUB_BASE_URL}/quote?symbol=${encodeURIComponent(symbol)}&token=${token}`
-          const quote = await fetchJSON<QuoteData>(url, 60) // Cache for 60 seconds
-          quotes[symbol] = quote
-        } catch (e) {
-          console.error(`Error fetching quote for ${symbol}:`, e)
-          // Don't add to quotes object if fetch fails
-        }
-      })
-    )
-
-    return quotes
-  } catch (err) {
-    console.error("Error in getStockQuotes:", err)
-    return {}
-  }
-}
-
 export async function getNews(symbols?: string[]): Promise<MarketNewsArticle[]> {
   try {
     const range = getDateRange(5)
@@ -68,7 +31,7 @@ export async function getNews(symbols?: string[]): Promise<MarketNewsArticle[]> 
     }
     const cleanSymbols = (symbols || []).map((s) => s?.trim().toUpperCase()).filter((s): s is string => Boolean(s))
 
-    const maxArticles = 6
+    const maxArticles = 8
 
     // If we have symbols, try to fetch company news per symbol and round-robin select
     if (cleanSymbols.length > 0) {
@@ -90,7 +53,7 @@ export async function getNews(symbols?: string[]): Promise<MarketNewsArticle[]> 
       )
 
       const collected: MarketNewsArticle[] = []
-      // Round-robin up to 6 picks
+      // Round-robin up to 8 picks
       for (let round = 0; round < maxArticles; round++) {
         for (let i = 0; i < cleanSymbols.length; i++) {
           const sym = cleanSymbols[i]
@@ -215,3 +178,57 @@ export const searchStocks = cache(async (query?: string): Promise<StockWithWatch
     return []
   }
 })
+
+export async function getStockMetrics(symbols: string[]): Promise<{
+  quotes: Record<string, QuoteData>
+  profiles: Record<string, ProfileData>
+  metrics: Record<string, FinancialsData>
+}> {
+  try {
+    const token = process.env.FINNHUB_API_KEY ?? NEXT_PUBLIC_FINNHUB_API_KEY
+    if (!token) {
+      console.error("FINNHUB API key is not configured")
+      return { quotes: {}, profiles: {}, metrics: {} }
+    }
+
+    const cleanSymbols = symbols.map((s) => s?.trim().toUpperCase()).filter((s): s is string => Boolean(s))
+
+    if (cleanSymbols.length === 0) {
+      return { quotes: {}, profiles: {}, metrics: {} }
+    }
+
+    const quotes: Record<string, QuoteData> = {}
+    const profiles: Record<string, ProfileData> = {}
+    const metrics: Record<string, FinancialsData> = {}
+
+    // Fetch quotes, profiles, and metrics for all symbols in parallel
+    await Promise.all(
+      cleanSymbols.map(async (symbol) => {
+        try {
+          const [quote, profile, metric] = await Promise.all([
+            fetchJSON<QuoteData>(`${FINNHUB_BASE_URL}/quote?symbol=${encodeURIComponent(symbol)}&token=${token}`, 60),
+            fetchJSON<ProfileData>(
+              `${FINNHUB_BASE_URL}/stock/profile2?symbol=${encodeURIComponent(symbol)}&token=${token}`,
+              60
+            ),
+            fetchJSON<FinancialsData>(
+              `${FINNHUB_BASE_URL}/stock/metric?symbol=${encodeURIComponent(symbol)}&token=${token}`,
+              60
+            ),
+          ])
+          quotes[symbol] = quote
+          profiles[symbol] = profile
+          metrics[symbol] = metric
+        } catch (e) {
+          console.error(`Error fetching data for ${symbol}:`, e)
+          // Don't add to objects if fetch fails
+        }
+      })
+    )
+
+    return { quotes, profiles, metrics }
+  } catch (err) {
+    console.error("Error in getStockMetrics:", err)
+    return { quotes: {}, profiles: {}, metrics: {} }
+  }
+}
