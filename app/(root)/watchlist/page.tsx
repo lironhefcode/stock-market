@@ -1,10 +1,13 @@
 import { getWatchlistSymbolsByEmail } from "@/lib/actions/watchlist.actions"
-import { getStockQuotes } from "@/lib/actions/finnhub.actions"
+import { getStockMetrics, searchStocks, getNews } from "@/lib/actions/finnhub.actions"
 import { auth } from "@/lib/better-auth/auth"
 import { headers } from "next/headers"
 import WatchlistTable from "@/components/WatchlistTable"
-import { WatchlistItem } from "@/db/models/watchlist"
+import WatchlistNews from "@/components/WatchlistNews"
+
 import { redirect } from "next/navigation"
+
+import SearchCommand from "@/components/SearchCommand"
 
 const WatchlistPage = async () => {
   const session = await auth.api.getSession({
@@ -15,21 +18,25 @@ const WatchlistPage = async () => {
     redirect("/")
   }
 
-  // Get full watchlist items
-  const watchlistData = await getWatchlistSymbolsByEmail(session.user.email, true)
-  const watchlistItems = watchlistData as WatchlistItem[]
-
-  // Extract symbols for quote fetching
-  const symbols = watchlistItems.map((item) => item.symbol)
-
-  // Fetch stock quotes for all symbols
-  const quotes = await getStockQuotes(symbols)
+  const watchlistData = await getWatchlistSymbolsByEmail(session.user.email)
+  const watchlistItems = watchlistData as string[]
+  const initialStocks = await searchStocks()
+  const { quotes, profiles, metrics } = await getStockMetrics(watchlistItems)
+  const news = await getNews(watchlistItems)
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="watchlist-title mb-8">My Watchlist</h1>
-      <WatchlistTable watchlistItems={watchlistItems} quotes={quotes} />
-    </div>
+    <section className="watchlist">
+      <div className="container mx-auto px-4 py-8">
+        <div className=" flex  justify-between">
+          <h1 className="watchlist-title mb-8">My Watchlist</h1>
+
+          <SearchCommand renderAs="button" initialStocks={initialStocks} watchlistSymbols={watchlistItems} />
+        </div>
+
+        <WatchlistTable watchlistItems={watchlistItems} quotes={quotes} profiles={profiles} metrics={metrics} />
+        <WatchlistNews news={news} />
+      </div>
+    </section>
   )
 }
 

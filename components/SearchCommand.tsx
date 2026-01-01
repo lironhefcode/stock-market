@@ -13,8 +13,11 @@ import { addToWatchlist } from "@/lib/actions/watchlist.actions"
 
 import { toast } from "sonner"
 import { getSession } from "@/lib/actions/auth.actions"
+import { Button } from "./ui/button"
+import { useRouter } from "next/navigation"
 
-export default function SearchCommand({ initialStocks, watchlistSymbols }: SearchCommandProps) {
+export default function SearchCommand({ initialStocks, watchlistSymbols, renderAs = "text" }: SearchCommandProps) {
+  const router = useRouter()
   const [open, setOpen] = useState(false)
   const [loading, setloading] = useState(false)
   const [search, setSearch] = useState("")
@@ -34,6 +37,8 @@ export default function SearchCommand({ initialStocks, watchlistSymbols }: Searc
       if (!res.success) {
         throw new Error(error)
       }
+      toast.success(`added ${symbol} to watchlist`)
+      router.refresh()
     } catch (error) {
       toast.error("failed")
       setWatchlist([...watchlist])
@@ -60,9 +65,15 @@ export default function SearchCommand({ initialStocks, watchlistSymbols }: Searc
   }, [search])
   return (
     <>
-      <span className="search-text " onClick={() => setOpen(true)}>
-        Search
-      </span>
+      {renderAs == "text" ? (
+        <span className="search-text " onClick={() => setOpen(true)}>
+          Search
+        </span>
+      ) : (
+        <Button onClick={() => setOpen(true)} className="bg-yellow-300 ">
+          Add to Watchlist
+        </Button>
+      )}
 
       <CommandDialog className="search-dialog" open={open} onOpenChange={setOpen}>
         <div className="search-field">
@@ -101,9 +112,12 @@ export default function SearchCommand({ initialStocks, watchlistSymbols }: Searc
                       </div>
                     </Link>
                     <div
-                      onClick={() => {
-                        console.log("click")
-                        isAdded ? null : handleWatchlistChange(stock.symbol, stock.name)
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        e.preventDefault()
+                        if (!isAdded) {
+                          handleWatchlistChange(stock.symbol, stock.name)
+                        }
                       }}
                     >
                       <Star className={["size-4", " text-yellow-500", isAdded ? "fill-amber-300" : ""].join(" ")} />
