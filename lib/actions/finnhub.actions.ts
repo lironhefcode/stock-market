@@ -22,7 +22,7 @@ async function fetchJSON<T>(url: string, revalidateSeconds?: number): Promise<T>
 
 export { fetchJSON }
 
-export async function getNews(symbols?: string[]): Promise<MarketNewsArticle[]> {
+export const getNews = cache(async (symbols?: string[]): Promise<MarketNewsArticle[]> => {
   try {
     const range = getDateRange(5)
     const token = process.env.FINNHUB_API_KEY ?? NEXT_PUBLIC_FINNHUB_API_KEY
@@ -96,9 +96,9 @@ export async function getNews(symbols?: string[]): Promise<MarketNewsArticle[]> 
     console.error("getNews error:", err)
     throw new Error("Failed to fetch news")
   }
-}
+})
 
-export const searchStocks = cache(async (query?: string): Promise<StockWithWatchlistStatus[]> => {
+export const searchStocks = async (query?: string): Promise<StockWithWatchlistStatus[]> => {
   try {
     const token = process.env.FINNHUB_API_KEY ?? NEXT_PUBLIC_FINNHUB_API_KEY
     if (!token) {
@@ -177,58 +177,62 @@ export const searchStocks = cache(async (query?: string): Promise<StockWithWatch
     console.error("Error in stock search:", err)
     return []
   }
-})
-
-export async function getStockMetrics(symbols: string[]): Promise<{
-  quotes: Record<string, QuoteData>
-  profiles: Record<string, ProfileData>
-  metrics: Record<string, FinancialsData>
-}> {
-  try {
-    const token = process.env.FINNHUB_API_KEY ?? NEXT_PUBLIC_FINNHUB_API_KEY
-    if (!token) {
-      console.error("FINNHUB API key is not configured")
-      return { quotes: {}, profiles: {}, metrics: {} }
-    }
-
-    const cleanSymbols = symbols.map((s) => s?.trim().toUpperCase()).filter((s): s is string => Boolean(s))
-
-    if (cleanSymbols.length === 0) {
-      return { quotes: {}, profiles: {}, metrics: {} }
-    }
-
-    const quotes: Record<string, QuoteData> = {}
-    const profiles: Record<string, ProfileData> = {}
-    const metrics: Record<string, FinancialsData> = {}
-
-    // Fetch quotes, profiles, and metrics for all symbols in parallel
-    await Promise.all(
-      cleanSymbols.map(async (symbol) => {
-        try {
-          const [quote, profile, metric] = await Promise.all([
-            fetchJSON<QuoteData>(`${FINNHUB_BASE_URL}/quote?symbol=${encodeURIComponent(symbol)}&token=${token}`, 60),
-            fetchJSON<ProfileData>(
-              `${FINNHUB_BASE_URL}/stock/profile2?symbol=${encodeURIComponent(symbol)}&token=${token}`,
-              60
-            ),
-            fetchJSON<FinancialsData>(
-              `${FINNHUB_BASE_URL}/stock/metric?symbol=${encodeURIComponent(symbol)}&token=${token}`,
-              60
-            ),
-          ])
-          quotes[symbol] = quote
-          profiles[symbol] = profile
-          metrics[symbol] = metric
-        } catch (e) {
-          console.error(`Error fetching data for ${symbol}:`, e)
-          // Don't add to objects if fetch fails
-        }
-      })
-    )
-
-    return { quotes, profiles, metrics }
-  } catch (err) {
-    console.error("Error in getStockMetrics:", err)
-    return { quotes: {}, profiles: {}, metrics: {} }
-  }
 }
+
+export const getStockMetrics = cache(
+  async (
+    symbols: string[]
+  ): Promise<{
+    quotes: Record<string, QuoteData>
+    profiles: Record<string, ProfileData>
+    metrics: Record<string, FinancialsData>
+  }> => {
+    try {
+      const token = process.env.FINNHUB_API_KEY ?? NEXT_PUBLIC_FINNHUB_API_KEY
+      if (!token) {
+        console.error("FINNHUB API key is not configured")
+        return { quotes: {}, profiles: {}, metrics: {} }
+      }
+
+      const cleanSymbols = symbols.map((s) => s?.trim().toUpperCase()).filter((s): s is string => Boolean(s))
+
+      if (cleanSymbols.length === 0) {
+        return { quotes: {}, profiles: {}, metrics: {} }
+      }
+
+      const quotes: Record<string, QuoteData> = {}
+      const profiles: Record<string, ProfileData> = {}
+      const metrics: Record<string, FinancialsData> = {}
+
+      // Fetch quotes, profiles, and metrics for all symbols in parallel
+      await Promise.all(
+        cleanSymbols.map(async (symbol) => {
+          try {
+            const [quote, profile, metric] = await Promise.all([
+              fetchJSON<QuoteData>(`${FINNHUB_BASE_URL}/quote?symbol=${encodeURIComponent(symbol)}&token=${token}`, 60),
+              fetchJSON<ProfileData>(
+                `${FINNHUB_BASE_URL}/stock/profile2?symbol=${encodeURIComponent(symbol)}&token=${token}`,
+                60
+              ),
+              fetchJSON<FinancialsData>(
+                `${FINNHUB_BASE_URL}/stock/metric?symbol=${encodeURIComponent(symbol)}&token=${token}`,
+                60
+              ),
+            ])
+            quotes[symbol] = quote
+            profiles[symbol] = profile
+            metrics[symbol] = metric
+          } catch (e) {
+            console.error(`Error fetching data for ${symbol}:`, e)
+            // Don't add to objects if fetch fails
+          }
+        })
+      )
+
+      return { quotes, profiles, metrics }
+    } catch (err) {
+      console.error("Error in getStockMetrics:", err)
+      return { quotes: {}, profiles: {}, metrics: {} }
+    }
+  }
+)
