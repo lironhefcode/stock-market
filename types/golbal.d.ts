@@ -222,6 +222,42 @@ declare global {
     name: string
     country: string
   }
+
+  type GroupResponse = {
+    groupId: string
+    inviteCode: string
+    name: string
+  }
+
+  type StockPosition = {
+    symbol: string
+    amountInvested: number
+  }
+
+  type CreateGroupPayload = {
+    name: string
+    positions: StockPosition[]
+  }
+
+  type JoinGroupPayload = {
+    inviteCode: string
+    positions: StockPosition[]
+  }
+
+  type GroupMemberRow = {
+    id: string
+    groupId: string
+    userId: string
+    username: string
+    positions: StockPosition[]
+    totalInvested: number
+    todayGain: number
+    joinedAt: string | Date
+  }
+
+  type GroupMembersResponse = {
+    members: GroupMemberRow[]
+  }
 }
 
 export {}
