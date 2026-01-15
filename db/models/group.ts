@@ -36,6 +36,4 @@ const groupSchema = new Schema<GroupDocument>(
   { timestamps: false }
 )
 
-groupSchema.index({ inviteCode: 1 }, { unique: true })
-
 export const Group = models?.Group || model<GroupDocument>("Group", groupSchema)

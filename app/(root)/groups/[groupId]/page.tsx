@@ -6,9 +6,9 @@ type GroupPageProps = {
 }
 
 const formatTodayGain = (gain: number) => {
-  if (!Number.isFinite(gain)) return "$0.00"
+  if (!Number.isFinite(gain)) return "0.00%"
   const sign = gain >= 0 ? "+" : ""
-  return `${sign}$${gain.toFixed(2)}`
+  return `${sign}${gain.toFixed(2)}%`
 }
 
 const GroupPage = async ({ params }: GroupPageProps) => {
@@ -30,8 +30,8 @@ const GroupPage = async ({ params }: GroupPageProps) => {
   return (
     <section className="space-y-6">
       <div>
-        <p className="text-sm text-gray-400">Group ID: {groupId}</p>
-        <h1 className="text-3xl font-semibold text-white">Leaderboard</h1>
+        <h1 className="text-3xl font-semibold text-white">{result.data.group.name} Leaderboard</h1>
+        <h4 className="text-xl font-semibold text-white">Invite code :{result.data.group.inviteCode} </h4>
         <p className="text-sm text-gray-400">Ranked by total value gained today.</p>
       </div>
 

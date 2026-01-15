@@ -11,7 +11,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
-import { createGroup, joinGroupWithSnapshot } from "@/lib/actions/group.actions"
+import { ActionResult, createGroup, joinGroupWithSnapshot } from "@/lib/actions/group.actions"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
@@ -74,16 +74,19 @@ const GroupForm = ({ initialStocks, open, onOpenChange, trigger, mode }: GroupFo
 
   const onSubmit = async (data: GroupFormData) => {
     try {
+      let res: ActionResult<GroupResponse>
       if (isCreate) {
         // Force cast to CreatePayload if needed by your action types
-        await createGroup({ name: data.name!, positions: data.positions })
+        res = await createGroup({ name: data.name!, positions: data.positions })
       } else {
-        await joinGroupWithSnapshot({ inviteCode: data.inviteCode!, positions: data.positions })
+        res = await joinGroupWithSnapshot({ inviteCode: data.inviteCode!, positions: data.positions })
       }
-
+      if (!res.success) {
+        throw new Error("action failed")
+      }
       toast.success(isCreate ? "Group created!" : "Joined group successfully!")
       onOpenChange(false) // Close dialog on success
-      router.refresh()
+      router.push(`/groups/${res.data.groupId}`)
     } catch (error) {
       console.error("Group form error:", error)
       toast.error("Failed to submit request")

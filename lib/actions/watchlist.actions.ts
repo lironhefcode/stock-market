@@ -3,7 +3,27 @@
 import { Watchlist } from "@/db/models/watchlist"
 import { WatchlistItem } from "@/db/models/watchlist"
 import { connectToDatabase } from "@/db/mongoose"
+import { getSession } from "./auth.actions"
+export async function getUserWatchlist() {
+  try {
+    const mongoose = await connectToDatabase()
+    const db = mongoose.connection.db
+    if (!db) {
+      throw new Error("Database connection not established")
+    }
 
+    const res = await getSession()
+    if (!res.success) {
+      throw new Error("no user connection  established")
+    }
+    const { user } = res!.session!
+
+    const watchlistItems = await Watchlist.find({ userId: user.id }, { symbol: 1 }).lean()
+    return watchlistItems.map((item) => String(item.symbol))
+  } catch (error) {
+    return []
+  }
+}
 export async function getWatchlistSymbolsByEmail(email: string): Promise<string[]> {
   try {
     const mongoose = await connectToDatabase()

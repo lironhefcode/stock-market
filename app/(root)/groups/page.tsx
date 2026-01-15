@@ -1,25 +1,15 @@
-"use client"
-
 import CreateGroup from "@/components/CreateGroup"
 import JoinGroup from "@/components/JoinGroup"
 import { searchStocks } from "@/lib/actions/finnhub.actions"
-import { useEffect, useState } from "react"
+import { getUserGroup } from "@/lib/actions/group.actions"
+import { redirect } from "next/navigation"
 
-const GroupsPage = () => {
-  const [initialStocks, setInitialStocks] = useState<StockWithWatchlistStatus[]>([])
-
-  // Load initial stocks
-  useEffect(() => {
-    const loadInitialStocks = async () => {
-      try {
-        const stocks = await searchStocks()
-        setInitialStocks(stocks)
-      } catch (error) {
-        console.error("Failed to load initial stocks:", error)
-      }
-    }
-    loadInitialStocks()
-  }, [])
+const GroupsPage = async () => {
+  const groupId = await getUserGroup()
+  if (groupId) {
+    redirect(`/groups/${groupId}`)
+  }
+  const initialStocks = await searchStocks()
 
   return (
     <section className="space-y-10">

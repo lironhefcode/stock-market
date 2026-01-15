@@ -257,6 +257,7 @@ declare global {
 
   type GroupMembersResponse = {
     members: GroupMemberRow[]
+    group: GroupResponse
   }
 }
 

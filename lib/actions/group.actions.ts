@@ -4,13 +4,14 @@ import crypto from "crypto"
 import { headers } from "next/headers"
 import { Types } from "mongoose"
 
-import { Group } from "@/db/models/group"
-import { GroupMember, StockPosition } from "@/db/models/groupMember"
+import { Group, GroupDocument } from "@/db/models/group"
+import { GroupMember, GroupMemberDocument, StockPosition } from "@/db/models/groupMember"
 import { connectToDatabase } from "@/db/mongoose"
 import { auth } from "@/lib/better-auth/auth"
-import { getStockMetrics } from "@/lib/actions/finnhub.actions"
+import { getStockChange, getStockMetrics } from "@/lib/actions/finnhub.actions"
+import { getSession } from "./auth.actions"
 
-type ActionResult<T> = { success: true; data: T } | { success: false; error: string }
+export type ActionResult<T> = { success: true; data: T } | { success: false; error: string }
 
 const generateInviteCode = async () => {
   let attempts = 0
@@ -54,26 +55,23 @@ const validatePositions = (positions: unknown): { valid: boolean; data?: StockPo
   return { valid: true, data: validated }
 }
 
-const calculateTodayGain = async (positions: StockPosition[]): Promise<number> => {
+const calculateTodayGain = async (positions: StockPosition[], totalInvested: number): Promise<number> => {
   if (!positions.length) return 0
 
   const symbols = positions.map((p) => p.symbol)
-  const { quotes } = await getStockMetrics(symbols)
+  const quotes = await getStockChange(symbols)
 
-  let totalGain = 0
+  let totalChange = 0
   for (const position of positions) {
     const quote = quotes[position.symbol]
     if (!quote || quote.c === undefined || quote.dp === undefined) continue
-
-    const currentPrice = quote.c
-    const changePercent = quote.dp
-    const previousClose = currentPrice / (1 + changePercent / 100)
-    const estimatedShares = position.amountInvested / previousClose
-    const todayGain = (currentPrice - previousClose) * estimatedShares
-    totalGain += todayGain
+    const stockChange = quote.dp
+    const protfoliPrecent = position.amountInvested / totalInvested
+    const todayChange = protfoliPrecent * (stockChange / 100)
+    totalChange += todayChange
   }
 
-  return parseFloat(totalGain.toFixed(2))
+  return totalChange * 100
 }
 
 export const createGroup = async (payload: CreateGroupPayload): Promise<ActionResult<GroupResponse>> => {
@@ -124,10 +122,24 @@ export const createGroup = async (payload: CreateGroupPayload): Promise<ActionRe
     return { success: false, error: "Unable to create group" }
   }
 }
-
-export const joinGroupWithSnapshot = async (
-  payload: JoinGroupPayload
-): Promise<ActionResult<{ groupId: string; message?: string }>> => {
+export const getUserGroup = async () => {
+  try {
+    const session = await getSession()
+    if (!session.success || !session.session?.user) {
+      return
+    }
+    const { user } = session.session
+    await connectToDatabase()
+    const group = await GroupMember.findOne<GroupMemberDocument>({ userId: user.id })
+    if (!group) {
+      return
+    }
+    return group.groupId.toString()
+  } catch (error) {
+    return
+  }
+}
+export const joinGroupWithSnapshot = async (payload: JoinGroupPayload): Promise<ActionResult<GroupResponse>> => {
   try {
     const session = await auth.api.getSession({ headers: await headers() })
     if (!session?.user?.id) {
@@ -146,7 +158,7 @@ export const joinGroupWithSnapshot = async (
 
     await connectToDatabase()
 
-    const group = await Group.findOne({ inviteCode })
+    const group = await Group.findOne<GroupDocument>({ inviteCode })
     if (!group) {
       return { success: false, error: "Group not found" }
     }
@@ -167,7 +179,7 @@ export const joinGroupWithSnapshot = async (
       joinedAt: new Date(),
     })
 
-    return { success: true, data: { groupId: group._id.toString(), message: "Joined group successfully" } }
+    return { success: true, data: { groupId: group._id.toString(), inviteCode, name: group.name } }
   } catch (error) {
     console.error("joinGroupWithSnapshot error:", error)
     return { success: false, error: "Unable to join group" }
@@ -182,7 +194,7 @@ export const getGroupMembers = async (groupId: string): Promise<ActionResult<Gro
 
     await connectToDatabase()
 
-    const group = await Group.findById(groupId)
+    const group = await Group.findById<GroupDocument>(groupId)
     if (!group) {
       return { success: false, error: "Group not found" }
     }
@@ -191,11 +203,11 @@ export const getGroupMembers = async (groupId: string): Promise<ActionResult<Gro
 
     const enrichedMembers = await Promise.all(
       members.map(async (member) => {
-        const todayGain = await calculateTodayGain(member.positions || [])
         const totalInvested = (member.positions || []).reduce(
           (sum: number, pos: StockPosition) => sum + pos.amountInvested,
           0
         )
+        const todayGain = await calculateTodayGain(member.positions || [], totalInvested)
 
         return {
           id: member._id?.toString(),
@@ -212,7 +224,13 @@ export const getGroupMembers = async (groupId: string): Promise<ActionResult<Gro
 
     enrichedMembers.sort((a, b) => b.todayGain - a.todayGain)
 
-    return { success: true, data: { members: enrichedMembers } }
+    return {
+      success: true,
+      data: {
+        members: enrichedMembers,
+        group: { groupId: group._id.toString(), inviteCode: group.inviteCode, name: group.name },
+      },
+    }
   } catch (error) {
     console.error("getGroupMembers error:", error)
     return { success: false, error: "Unable to fetch members" }
