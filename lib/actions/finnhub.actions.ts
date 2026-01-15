@@ -178,7 +178,35 @@ export const searchStocks = async (query?: string): Promise<StockWithWatchlistSt
     return []
   }
 }
+export const getStockChange = cache(async (symbols: string[]) => {
+  try {
+    const token = process.env.FINNHUB_API_KEY ?? NEXT_PUBLIC_FINNHUB_API_KEY
+    if (!token) {
+      console.error("FINNHUB API key is not configured")
+      return { quotes: {}, profiles: {}, metrics: {} }
+    }
 
+    const cleanSymbols = symbols.map((s) => s?.trim().toUpperCase()).filter((s): s is string => Boolean(s))
+
+    if (cleanSymbols.length === 0) {
+      return {}
+    }
+    const quotes: Record<string, QuoteData> = {}
+    await Promise.all(
+      cleanSymbols.map(async (symbol) => {
+        const quote = await fetchJSON<QuoteData>(
+          `${FINNHUB_BASE_URL}/quote?symbol=${encodeURIComponent(symbol)}&token=${token}`,
+          60
+        )
+        quotes[symbol] = quote
+      })
+    )
+
+    return quotes
+  } catch (error) {
+    return {}
+  }
+})
 export const getStockMetrics = cache(
   async (
     symbols: string[]
