@@ -31,7 +31,7 @@ export default function WatchlistTable({ watchlistItems, quotes, profiles, metri
     setOptimisticItems(watchlistItems)
   }, [watchlistItems])
 
-  if (watchlistItems.length === 0) {
+  if (optimisticItems.length === 0) {
     return (
       <div className="watchlist-empty-container">
         <div className="watchlist-empty">

@@ -15,7 +15,7 @@ const Header = async ({ user }: { user: User }) => {
       <div className="container header-wrapper">
         <Link href="/">
           <Image
-            src="/assets/icons/test2.png"
+            src="/assets/icons/logo.png"
             alt="logo"
             width={140}
             height={400}

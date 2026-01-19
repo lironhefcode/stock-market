@@ -26,7 +26,7 @@ const WatchlistPage = async () => {
           <WatchlistTableWrapper watchlistItems={watchlistItems} />
         </Suspense>
         <div className="mt-12">
-          <NewsWarrper watchlistItems={watchlistItems} />
+          <NewsWrapper watchlistItems={watchlistItems} />
         </div>
       </div>
     </section>
@@ -40,7 +40,7 @@ const WatchlistTableWrapper = async ({ watchlistItems }: { watchlistItems: strin
 
   return <WatchlistTable watchlistItems={watchlistItems} quotes={quotes} profiles={profiles} metrics={metrics} />
 }
-const NewsWarrper = async ({ watchlistItems }: { watchlistItems: string[] }) => {
+const NewsWrapper = async ({ watchlistItems }: { watchlistItems: string[] }) => {
   const news = await getNews(watchlistItems)
   return <WatchlistNews news={news} />
 }
