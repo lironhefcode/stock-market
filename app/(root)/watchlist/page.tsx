@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic"
 import { getUserWatchlist, getWatchlistSymbolsByEmail } from "@/lib/actions/watchlist.actions"
 import { getStockMetrics, searchStocks, getNews } from "@/lib/actions/finnhub.actions"
 

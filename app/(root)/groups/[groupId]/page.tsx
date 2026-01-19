@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { getGroupMembers } from "@/lib/actions/group.actions"
 import { TrendingUp, TrendingDown } from "lucide-react"

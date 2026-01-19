@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic"
 import TradingViewWidget from "@/components/TradingViewWidget"
 import { Button } from "@/components/ui/button"
 import {

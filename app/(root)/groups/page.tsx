@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic"
 import CreateGroup from "@/components/CreateGroup"
 import JoinGroup from "@/components/JoinGroup"
 import { searchStocks } from "@/lib/actions/finnhub.actions"
