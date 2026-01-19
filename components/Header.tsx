@@ -15,11 +15,11 @@ const Header = async ({ user }: { user: User }) => {
       <div className="container header-wrapper">
         <Link href="/">
           <Image
-            src="/assets/icons/logo.svg"
+            src="/assets/icons/header.png"
             alt="logo"
             width={140}
-            height={32}
-            className="h-8 w-auto cursor-pointer"
+            height={40}
+            className="h-14 w-auto cursor-pointer"
           />
         </Link>
         <nav className="hidden sm:block">

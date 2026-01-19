@@ -14,9 +14,9 @@ const GroupsPage = async () => {
   return (
     <section className="space-y-10">
       <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm text-gray-400">Social groups competition</p>
-          <h1 className="text-3xl font-semibold text-white">Groups</h1>
+        <div className="space-y-2">
+          <p className="text-sm text-gray-400 font-medium">Social groups competition</p>
+          <h1 className="text-4xl font-bold text-white tracking-tight">Groups</h1>
         </div>
       </div>
 
