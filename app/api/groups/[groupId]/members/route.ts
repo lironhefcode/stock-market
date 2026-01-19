@@ -6,7 +6,7 @@ import { NextResponse } from "next/server"
 import { Types } from "mongoose"
 
 type RouteParams = {
-  params: { groupId: string }
+  params: Promise<{ groupId: string }>
 }
 
 async function calculateTodayGain(positions: Array<{ symbol: string; amountInvested: number }>): Promise<number> {
@@ -44,7 +44,7 @@ async function calculateTodayGain(positions: Array<{ symbol: string; amountInves
 }
 
 export async function GET(_request: Request, { params }: RouteParams) {
-  const groupId = params.groupId
+  const groupId = (await params).groupId
 
   if (!Types.ObjectId.isValid(groupId)) {
     return NextResponse.json({ error: "Invalid group id" }, { status: 400 })
