@@ -5,7 +5,7 @@ import { POPULAR_STOCK_SYMBOLS } from "@/lib/constants"
 import { cache } from "react"
 
 const FINNHUB_BASE_URL = "https://finnhub.io/api/v1"
-const NEXT_PUBLIC_FINNHUB_API_KEY = process.env.NEXT_PUBLIC_FINNHUB_API_KEY ?? ""
+const FINNHUB_API_KEY = process.env.FINNHUB_API_KEY ?? ""
 
 async function fetchJSON<T>(url: string, revalidateSeconds?: number): Promise<T> {
   const options: RequestInit & { next?: { revalidate?: number } } = revalidateSeconds
@@ -25,7 +25,7 @@ export { fetchJSON }
 export const getNews = cache(async (symbols?: string[]): Promise<MarketNewsArticle[]> => {
   try {
     const range = getDateRange(5)
-    const token = process.env.FINNHUB_API_KEY ?? NEXT_PUBLIC_FINNHUB_API_KEY
+    const token = process.env.FINNHUB_API_KEY ?? FINNHUB_API_KEY
     if (!token) {
       throw new Error("FINNHUB API key is not configured")
     }
@@ -98,9 +98,9 @@ export const getNews = cache(async (symbols?: string[]): Promise<MarketNewsArtic
   }
 })
 
-export const searchStocks = async (query?: string): Promise<StockWithWatchlistStatus[]> => {
+export const searchStocks = cache(async (query?: string): Promise<StockWithWatchlistStatus[]> => {
   try {
-    const token = process.env.FINNHUB_API_KEY ?? NEXT_PUBLIC_FINNHUB_API_KEY
+    const token = process.env.FINNHUB_API_KEY ?? FINNHUB_API_KEY
     if (!token) {
       // If no token, log and return empty to avoid throwing per requirements
       console.error("Error in stock search:", new Error("FINNHUB API key is not configured"))
@@ -113,7 +113,7 @@ export const searchStocks = async (query?: string): Promise<StockWithWatchlistSt
 
     if (!trimmed) {
       // Fetch top 10 popular symbols' profiles
-      const top = POPULAR_STOCK_SYMBOLS.slice(0, 10)
+      const top = POPULAR_STOCK_SYMBOLS.slice(0, 7)
       const profiles = await Promise.all(
         top.map(async (sym) => {
           try {
@@ -177,10 +177,10 @@ export const searchStocks = async (query?: string): Promise<StockWithWatchlistSt
     console.error("Error in stock search:", err)
     return []
   }
-}
+})
 export const getStockChange = cache(async (symbols: string[]) => {
   try {
-    const token = process.env.FINNHUB_API_KEY ?? NEXT_PUBLIC_FINNHUB_API_KEY
+    const token = process.env.FINNHUB_API_KEY ?? FINNHUB_API_KEY
     if (!token) {
       console.error("FINNHUB API key is not configured")
       return { quotes: {}, profiles: {}, metrics: {} }
@@ -216,7 +216,7 @@ export const getStockMetrics = cache(
     metrics: Record<string, FinancialsData>
   }> => {
     try {
-      const token = process.env.FINNHUB_API_KEY ?? NEXT_PUBLIC_FINNHUB_API_KEY
+      const token = process.env.FINNHUB_API_KEY ?? FINNHUB_API_KEY
       if (!token) {
         console.error("FINNHUB API key is not configured")
         return { quotes: {}, profiles: {}, metrics: {} }
