@@ -10,8 +10,10 @@ export default async function HeaderData() {
     getUserWatchlist(),
     getSession(),
   ])
-
-  const { user } = session.session!
+  if (!session.success || !session.session?.user) {
+    return null
+  }
+  const { user } = session.session
   return (
     <>
       <nav className="hidden sm:block">

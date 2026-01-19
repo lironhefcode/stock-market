@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getSessionCookie } from "better-auth/cookies"
 import { getSession } from "@/lib/actions/auth.actions"
+import { auth } from "@/lib/better-auth/auth"
 
 export async function middleware(request: NextRequest) {
   const sessionCookie = getSessionCookie(request)
@@ -9,9 +10,12 @@ export async function middleware(request: NextRequest) {
   if (!sessionCookie) {
     return NextResponse.redirect(new URL("/sign-in", request.url))
   }
-  const session = await getSession()
-  if (!session.success || !session.session?.user) {
-    // Session is invalid or expired → redirect
+  const session = await auth.api.getSession({
+    headers: request.headers,
+  })
+
+  // Check if session exists and has a user
+  if (!session?.user) {
     return NextResponse.redirect(new URL("/sign-in", request.url))
   }
 
