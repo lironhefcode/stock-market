@@ -3,13 +3,14 @@ import Link from "next/link"
 import Navitems from "./Navitems"
 import UserDropdown from "./UserDropdown"
 import { searchStocks } from "@/lib/actions/finnhub.actions"
-import { getWatchlistSymbolsByEmail } from "@/lib/actions/watchlist.actions"
+import { getUserWatchlist, getWatchlistSymbolsByEmail } from "@/lib/actions/watchlist.actions"
 import { WatchlistItem } from "@/db/models/watchlist"
+import { getSession } from "@/lib/actions/auth.actions"
+import { redirect } from "next/navigation"
+import HeaderData from "./HeaderData"
+import { Suspense } from "react"
 
-const Header = async ({ user }: { user: User }) => {
-  const initialStocks = await searchStocks()
-  const watchlistSymbols = (await getWatchlistSymbolsByEmail(user.email)) as string[]
-
+const Header = async () => {
   return (
     <header className="sticky top-0 header">
       <div className="container header-wrapper">
@@ -22,10 +23,9 @@ const Header = async ({ user }: { user: User }) => {
             className="h-14 w-auto cursor-pointer"
           />
         </Link>
-        <nav className="hidden sm:block">
-          <Navitems watchlistSymbols={watchlistSymbols} initialStocks={initialStocks} />
-        </nav>
-        <UserDropdown watchlistSymbols={watchlistSymbols} user={user} initialStocks={initialStocks} />
+        <Suspense fallback={null}>
+          <HeaderData />
+        </Suspense>
       </div>
     </header>
   )
