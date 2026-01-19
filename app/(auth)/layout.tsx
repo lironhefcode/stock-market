@@ -1,35 +1,29 @@
-import { auth } from "@/lib/better-auth/auth";
-import { headers } from "next/headers";
-import Image from "next/image";
-import Link from "next/link";
-import { redirect } from "next/navigation";
+import { auth } from "@/lib/better-auth/auth"
+import { headers } from "next/headers"
+import Image from "next/image"
+import Link from "next/link"
+import { redirect } from "next/navigation"
 
 const Layout = async ({ children }: { children: React.ReactNode }) => {
   const session = await auth.api.getSession({
     headers: await headers(),
-  });
+  })
   if (session?.user) {
-    redirect("/");
+    redirect("/")
   }
   return (
     <main className="auth-layout">
       <section className="auth-left-section scrollbar-hide-default">
         <Link className="auth-logo" href="/">
-          <Image
-            src="/assets/icons/logo.svg"
-            alt="liron stock logo"
-            width={140}
-            height={32}
-            className="h-8 w-auto"
-          />
+          <Image src="/assets/icons/test2.png" alt="liron stock logo" width={140} height={32} className="h-12 w-auto" />
         </Link>
         <div className="pb-6 lg:pb-8 flex-1">{children}</div>
       </section>
       <section className="auth-right-section">
         <div className="z-10 relative lg:mt-4 lg:mb-16">
           <blockquote className="auth-blockquote">
-            Signalist turned my watchlist into a winning list. The alerts are
-            spot-on, and I feel more confident making moves in the market
+            CoVest turned my watchlist into a winning list. The alerts are spot-on, and I feel more confident making
+            moves in the market
           </blockquote>
           <div className="flex items-center justify-between">
             <cite className="auth-testimonial-author">- Sarah K.</cite>
@@ -50,7 +44,7 @@ const Layout = async ({ children }: { children: React.ReactNode }) => {
         </div>
         <div className="flex-1 relative">
           <Image
-            src="/assets/images/dashboard.png"
+            src="/assets/images/auth.png"
             alt="Dash board pewview"
             width={1440}
             height={1150}
@@ -59,6 +53,6 @@ const Layout = async ({ children }: { children: React.ReactNode }) => {
         </div>
       </section>
     </main>
-  );
-};
-export default Layout;
+  )
+}
+export default Layout

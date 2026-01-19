@@ -54,7 +54,7 @@ const SymbolPage = async ({ params }: SymbolPageProps) => {
 
         {/* Right Column - Second Section */}
         <section className="flex flex-col gap-8">
-          <Button className="w-full h-12 bg-yellow-400  font-semibold">add to watchlist</Button>
+          <Button className="w-full h-12 bg-blue-600 hover:bg-blue-500 text-white font-semibold shadow-lg transition-all">Add to watchlist</Button>
           {/* Technical Analysis Widget */}
           <div>
             <TradingViewWidget

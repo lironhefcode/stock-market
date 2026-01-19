@@ -1,15 +1,14 @@
-import TradingViewWidget from "@/components/TradingViewWidget";
-import { Button } from "@/components/ui/button";
+import TradingViewWidget from "@/components/TradingViewWidget"
+import { Button } from "@/components/ui/button"
 import {
   HEATMAP_WIDGET_CONFIG,
   MARKET_DATA_WIDGET_CONFIG,
   MARKET_OVERVIEW_WIDGET_CONFIG,
   TOP_STORIES_WIDGET_CONFIG,
-} from "@/lib/constants";
+} from "@/lib/constants"
 
 const Home = () => {
-  const scriptUrl =
-    "https://s3.tradingview.com/external-embedding/embed-widget-";
+  const scriptUrl = "https://s3.tradingview.com/external-embedding/embed-widget-"
   return (
     <div className="flex min-h-screen home-wrapper">
       <section className="grid w-full gap-8 home-section ">
@@ -38,13 +37,10 @@ const Home = () => {
           />
         </div>
         <div className="h-full md:col-span-1 xl:col-span-2">
-          <TradingViewWidget
-            config={MARKET_DATA_WIDGET_CONFIG}
-            scriptUrl={scriptUrl + "market-quotes.js"}
-          />
+          <TradingViewWidget config={MARKET_DATA_WIDGET_CONFIG} scriptUrl={scriptUrl + "market-quotes.js"} />
         </div>
       </section>
     </div>
-  );
-};
-export default Home;
+  )
+}
+export default Home

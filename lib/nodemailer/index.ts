@@ -1,9 +1,6 @@
-import nodemailer from "nodemailer";
-import {
-  NEWS_SUMMARY_EMAIL_TEMPLATE,
-  WELCOME_EMAIL_TEMPLATE,
-} from "./template";
-import { text } from "stream/consumers";
+import nodemailer from "nodemailer"
+import { NEWS_SUMMARY_EMAIL_TEMPLATE, WELCOME_EMAIL_TEMPLATE } from "./template"
+import { text } from "stream/consumers"
 
 export const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -11,46 +8,36 @@ export const transporter = nodemailer.createTransport({
     user: process.env.NODEMAILER_EMAIL,
     pass: process.env.NODEMAILER_PASSWORD,
   },
-});
-export const sendWelcomeEmail = async ({
-  email,
-  name,
-  intro,
-}: WelcomeEmailData) => {
-  const htmlTemplate = WELCOME_EMAIL_TEMPLATE.replace("{{name}}", name).replace(
-    "{{intro}}",
-    intro
-  );
+})
+export const sendWelcomeEmail = async ({ email, name, intro }: WelcomeEmailData) => {
+  const htmlTemplate = WELCOME_EMAIL_TEMPLATE.replace("{{name}}", name).replace("{{intro}}", intro)
   const mailOptions = {
     from: '"liron stock" <lironstock@liron.com>',
     to: email,
     subject: "Welcome to Liron Stock Market App!",
     text: "thank for joining",
     html: htmlTemplate,
-  };
-  await transporter.sendMail(mailOptions);
-};
+  }
+  await transporter.sendMail(mailOptions)
+}
 export const sendNewsSummaryEmail = async ({
   email,
   date,
   newsContent,
 }: {
-  email: string;
-  date: string;
-  newsContent: string;
+  email: string
+  date: string
+  newsContent: string
 }): Promise<void> => {
-  const htmlTemplate = NEWS_SUMMARY_EMAIL_TEMPLATE.replace(
-    "{{date}}",
-    date
-  ).replace("{{newsContent}}", newsContent);
+  const htmlTemplate = NEWS_SUMMARY_EMAIL_TEMPLATE.replace("{{date}}", date).replace("{{newsContent}}", newsContent)
 
   const mailOptions = {
     from: `"liron stock News" <stockaI@lironstock.com>`,
     to: email,
     subject: `📈 Market News Summary Today - ${date}`,
-    text: `Today's market news summary from Signalist`,
+    text: `Today's market news summary from CoVest`,
     html: htmlTemplate,
-  };
+  }
 
-  await transporter.sendMail(mailOptions);
-};
+  await transporter.sendMail(mailOptions)
+}

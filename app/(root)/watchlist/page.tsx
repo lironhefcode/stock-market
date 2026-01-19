@@ -13,8 +13,11 @@ const WatchlistPage = async () => {
   return (
     <section className="watchlist">
       <div className="container mx-auto px-4 py-8">
-        <div className=" flex  justify-between">
-          <h1 className="watchlist-title mb-8">My Watchlist</h1>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-400 mb-1">My Watchlist</h1>
+            <p className="text-sm text-gray-500">Track your favorite stocks in real-time</p>
+          </div>
           <Suspense>
             <SearchCommandWrapper watchlistItems={watchlistItems} />
           </Suspense>
@@ -22,7 +25,9 @@ const WatchlistPage = async () => {
         <Suspense>
           <WatchlistTableWrapper watchlistItems={watchlistItems} />
         </Suspense>
-        <NewsWarrper watchlistItems={watchlistItems} />
+        <div className="mt-12">
+          <NewsWarrper watchlistItems={watchlistItems} />
+        </div>
       </div>
     </section>
   )
