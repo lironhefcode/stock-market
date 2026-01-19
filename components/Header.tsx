@@ -15,10 +15,10 @@ const Header = async ({ user }: { user: User }) => {
       <div className="container header-wrapper">
         <Link href="/">
           <Image
-            src="/assets/icons/logo.png"
+            src="/assets/icons/header.png"
             alt="logo"
             width={140}
-            height={400}
+            height={40}
             className="h-14 w-auto cursor-pointer"
           />
         </Link>
