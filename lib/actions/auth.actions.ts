@@ -1,5 +1,6 @@
 "use server"
 
+import { redirect } from "next/navigation"
 import { auth } from "../better-auth/auth"
 import { inngest } from "../inngest/client"
 import { headers } from "next/headers"
@@ -76,5 +77,17 @@ export async function getSession() {
   } catch (error) {
     console.error("Error getting session:", error)
     return { success: false, error: "Failed to get session" }
+  }
+}
+export async function getUser() {
+  try {
+    const session = await getSession()
+    if (!session.success || !session.session?.user) {
+      redirect("/sign-in")
+    }
+    return session.session.user
+  } catch (error) {
+    console.error("Error getting user:", error)
+    redirect("/sign-in")
   }
 }

@@ -2,18 +2,11 @@ import { searchStocks } from "@/lib/actions/finnhub.actions"
 import Navitems from "./Navitems"
 import UserDropdown from "./UserDropdown"
 import { getUserWatchlist } from "@/lib/actions/watchlist.actions"
-import { getSession } from "@/lib/actions/auth.actions"
+import { getSession, getUser } from "@/lib/actions/auth.actions"
 
 export default async function HeaderData() {
-  const [initialStocks, watchlistSymbols, session] = await Promise.all([
-    searchStocks(),
-    getUserWatchlist(),
-    getSession(),
-  ])
-  if (!session.success || !session.session?.user) {
-    return null
-  }
-  const { user } = session.session
+  const [initialStocks, watchlistSymbols, user] = await Promise.all([searchStocks(), getUserWatchlist(), getUser()])
+
   return (
     <>
       <nav className="hidden sm:block">
