@@ -1,24 +1,14 @@
 import { Input } from "@/components/ui/input"
 import { X } from "lucide-react"
-import {
-  Control,
-  FieldArrayPath,
-  FieldArrayWithId,
-  Path,
-  useFieldArray,
-  UseFieldArrayRemove,
-  useForm,
-  UseFormRegister,
-  UseFormReturn,
-} from "react-hook-form"
+import { FieldArrayWithId, Path, UseFieldArrayRemove, useForm } from "react-hook-form"
 
-type PostionsProps<T extends { positions: StockPosition[] }> = {
+type PositionsProps<T extends { positions: StockPosition[] }> = {
   isSubmitting: boolean
   form: ReturnType<typeof useForm<T>>
   fields: FieldArrayWithId<T, any, "id">[]
   remove: UseFieldArrayRemove
 }
-function Postions<T extends { positions: StockPosition[] }>({ form, isSubmitting, fields, remove }: PostionsProps<T>) {
+function Positions<T extends { positions: StockPosition[] }>({ form, isSubmitting, fields, remove }: PositionsProps<T>) {
   return (
     <>
       {fields.length > 0 && (
@@ -48,17 +38,13 @@ function Postions<T extends { positions: StockPosition[] }>({ form, isSubmitting
 
                 {/* Symbol */}
                 <div className="col-span-4">
-                  <span className="font-mono font-bold text-yellow-400 text-base tracking-wider">
-                    {position.symbol}
-                  </span>
+                  <span className="font-mono font-bold text-yellow-400 text-base tracking-wider">{position.symbol}</span>
                 </div>
 
                 {/* Amount input */}
                 <div className="col-span-5">
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm font-mono">
-                      $
-                    </span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm font-mono">$</span>
                     <Input
                       type="number"
                       min="0"
@@ -94,4 +80,4 @@ function Postions<T extends { positions: StockPosition[] }>({ form, isSubmitting
   )
 }
 
-export default Postions
+export default Positions

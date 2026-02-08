@@ -8,7 +8,7 @@ import { toast } from "sonner"
 import { Plus, X } from "lucide-react"
 import StockSearchDialog from "@/components/StockSearchDialog"
 import { useFieldArray, useForm } from "react-hook-form"
-import Postions from "./forms/group/Postions"
+import Postions from "./forms/group/Positions"
 
 type UpdatePositionsFormData = {
   positions: StockPosition[]
