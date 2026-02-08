@@ -100,7 +100,6 @@ const GroupForm = ({ initialStocks, open, onOpenChange, trigger, mode }: GroupFo
           </DialogHeader>
 
           <div className="space-y-4 py-2">
-            <h1>test</h1>
             <form onSubmit={handleSubmit(onSubmit)}>
               <div className="space-y-2">
                 {/* Conditionally Render the specific input field */}
