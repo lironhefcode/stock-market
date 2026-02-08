@@ -79,7 +79,7 @@ export async function getSession() {
     return { success: false, error: "Failed to get session" }
   }
 }
-export async function getUser() {
+export async function getUser(): Promise<User> {
   try {
     const session = await getSession()
     if (!session.success || !session.session?.user) {

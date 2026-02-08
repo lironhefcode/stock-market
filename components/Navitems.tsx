@@ -20,7 +20,7 @@ const Navitems = ({
     return pathname.startsWith(path)
   }
   return (
-    <ul className="flex flex-col sm:flex-row p-2 gap-3 sm:gap-10 font-medium">
+    <ul className="flex flex-col sm:flex-row p-2 gap-3 sm:gap-8">
       {NAV_ITEMS.map((item) => {
         if (item.title === "Search") {
           return (
@@ -29,11 +29,16 @@ const Navitems = ({
             </li>
           )
         }
+        const active = isActive(item.href)
         return (
           <li key={item.href}>
             <Link
               href={item.href}
-              className={`hover:text-yellow-500 transition-colors ${isActive(item.href) ? "text-gray-100" : ""}`}
+              className={`text-sm font-mono font-bold uppercase tracking-wider transition-colors duration-150 ${
+                active
+                  ? "text-yellow-400"
+                  : "text-gray-500 hover:text-gray-400"
+              }`}
             >
               {item.title}
             </Link>

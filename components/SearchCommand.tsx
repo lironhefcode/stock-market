@@ -66,7 +66,10 @@ export default function SearchCommand({ initialStocks, watchlistSymbols, renderA
   return (
     <>
       {renderAs == "text" ? (
-        <span className="search-text " onClick={() => setOpen(true)}>
+        <span
+          className="text-sm font-mono font-bold uppercase tracking-wider transition-colors duration-150 text-gray-500 hover:text-gray-400 cursor-pointer "
+          onClick={() => setOpen(true)}
+        >
           Search
         </span>
       ) : (
