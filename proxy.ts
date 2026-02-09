@@ -3,7 +3,8 @@ import { getSessionCookie } from "better-auth/cookies"
 import { getSession } from "@/lib/actions/auth.actions"
 import { auth } from "@/lib/better-auth/auth"
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
+  const sessionCookie = getSessionCookie(request)
   const sessionCookie = getSessionCookie(request)
 
   // Check cookie presence - prevents obviously unauthorized users
