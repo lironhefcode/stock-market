@@ -1,7 +1,9 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { getCurrentUserPositions, getGroupMembers } from "@/lib/actions/group.actions"
+import { getCurrentUserPositions, getGroupMembers, leaveGroup } from "@/lib/actions/group.actions"
 import { TrendingUp, TrendingDown, ChevronRight, Copy } from "lucide-react"
 import UpdatePositionsButton from "@/components/UpdatePositionsButton"
+import { redirect } from "next/navigation"
+import LeaveGroupBtn from "@/components/LeaveGroupBtn"
 
 type GroupPageProps = {
   params: Promise<{ groupId: string }>
@@ -70,18 +72,12 @@ const GroupPage = async ({ params }: GroupPageProps) => {
       <div className="border-b border-gray-700 pb-8 mb-10">
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
           <div>
-            <p className="text-xs font-mono text-gray-500 uppercase tracking-[0.2em] mb-3">
-              Group #{groupId.slice(-6).toUpperCase()}
-            </p>
-            <h1 className="text-5xl md:text-7xl font-black text-gray-400 tracking-tighter leading-none mb-4">
-              {result.data.group.name}
-            </h1>
+            <p className="text-xs font-mono text-gray-500 uppercase tracking-[0.2em] mb-3">Group #{groupId.slice(-6).toUpperCase()}</p>
+            <h1 className="text-5xl md:text-7xl font-black text-gray-400 tracking-tighter leading-none mb-4">{result.data.group.name}</h1>
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2 px-4 py-2 bg-gray-800 border border-gray-600 rounded">
                 <span className="text-xs font-mono text-gray-500 uppercase">Invite</span>
-                <span className="font-mono text-lg font-bold text-yellow-400 tracking-widest">
-                  {result.data.group.inviteCode}
-                </span>
+                <span className="font-mono text-lg font-bold text-yellow-400 tracking-widest">{result.data.group.inviteCode}</span>
                 <Copy className="w-3.5 h-3.5 text-gray-600" />
               </div>
               <span className="text-gray-600">·</span>
@@ -89,13 +85,13 @@ const GroupPage = async ({ params }: GroupPageProps) => {
                 {members.length} member{members.length !== 1 ? "s" : ""}
               </span>
               <span className="text-gray-600">·</span>
-              <span className="text-sm text-gray-500 font-mono">
-                {formatCurrency(totalGroupInvestment)} total
-              </span>
+              <span className="text-sm text-gray-500 font-mono">{formatCurrency(totalGroupInvestment)} total</span>
             </div>
           </div>
-
-          <UpdatePositionsButton positions={positions.data} />
+          <div className="flex items-center gap-3">
+            <UpdatePositionsButton positions={positions.data} />
+            <LeaveGroupBtn groupId={groupId} />
+          </div>
         </div>
       </div>
 
@@ -128,12 +124,8 @@ const GroupPage = async ({ params }: GroupPageProps) => {
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <p className="text-xs font-mono text-yellow-400 uppercase tracking-widest mb-1">
-                          Leading
-                        </p>
-                        <h2 className="text-3xl md:text-4xl font-black text-gray-400 tracking-tight">
-                          {leader.username}
-                        </h2>
+                        <p className="text-xs font-mono text-yellow-400 uppercase tracking-widest mb-1">Leading</p>
+                        <h2 className="text-3xl md:text-4xl font-black text-gray-400 tracking-tight">{leader.username}</h2>
                       </div>
                     </div>
 
@@ -141,28 +133,20 @@ const GroupPage = async ({ params }: GroupPageProps) => {
                     <div className="flex-1 grid grid-cols-3 gap-px bg-gray-700 rounded-lg overflow-hidden md:ml-auto md:max-w-lg">
                       <div className="bg-gray-800 p-5">
                         <p className="text-xs font-mono text-gray-500 uppercase tracking-wider mb-2">Today</p>
-                        <div className={`flex items-center gap-1.5 text-2xl font-black tabular-nums ${
-                          leader.todayGain >= 0 ? "text-teal-400" : "text-red-500"
-                        }`}>
-                          {leader.todayGain >= 0 ? (
-                            <TrendingUp className="w-5 h-5" />
-                          ) : (
-                            <TrendingDown className="w-5 h-5" />
-                          )}
+                        <div
+                          className={`flex items-center gap-1.5 text-2xl font-black tabular-nums ${leader.todayGain >= 0 ? "text-teal-400" : "text-red-500"}`}
+                        >
+                          {leader.todayGain >= 0 ? <TrendingUp className="w-5 h-5" /> : <TrendingDown className="w-5 h-5" />}
                           {formatTodayGain(leader.todayGain)}
                         </div>
                       </div>
                       <div className="bg-gray-800 p-5">
                         <p className="text-xs font-mono text-gray-500 uppercase tracking-wider mb-2">Invested</p>
-                        <p className="text-2xl font-black text-gray-400 tabular-nums">
-                          {formatCurrency(leader.totalInvested)}
-                        </p>
+                        <p className="text-2xl font-black text-gray-400 tabular-nums">{formatCurrency(leader.totalInvested)}</p>
                       </div>
                       <div className="bg-gray-800 p-5">
                         <p className="text-xs font-mono text-gray-500 uppercase tracking-wider mb-2">Holdings</p>
-                        <p className="text-2xl font-black text-gray-400 tabular-nums">
-                          {leader.positions.length}
-                        </p>
+                        <p className="text-2xl font-black text-gray-400 tabular-nums">{leader.positions.length}</p>
                       </div>
                     </div>
                   </div>
@@ -175,9 +159,7 @@ const GroupPage = async ({ params }: GroupPageProps) => {
           {rest.length > 0 && (
             <div>
               <div className="flex items-center gap-4 mb-5">
-                <h3 className="text-xs font-mono text-gray-500 uppercase tracking-[0.2em]">
-                  Rankings
-                </h3>
+                <h3 className="text-xs font-mono text-gray-500 uppercase tracking-[0.2em]">Rankings</h3>
                 <div className="flex-1 h-px bg-gray-700" />
               </div>
 
@@ -207,48 +189,30 @@ const GroupPage = async ({ params }: GroupPageProps) => {
                     >
                       {/* Rank */}
                       <div className="hidden md:flex col-span-1 items-center">
-                        <span className={`text-2xl font-black tabular-nums ${
-                          rank <= 3 ? "text-yellow-500" : "text-gray-600"
-                        }`}>
-                          {rank}
-                        </span>
+                        <span className={`text-2xl font-black tabular-nums ${rank <= 3 ? "text-yellow-500" : "text-gray-600"}`}>{rank}</span>
                       </div>
 
                       {/* Trader */}
                       <div className="col-span-4 flex items-center gap-4">
                         {/* Mobile rank */}
-                        <span className="md:hidden text-xl font-black text-gray-600 tabular-nums w-8">
-                          {rank}
-                        </span>
+                        <span className="md:hidden text-xl font-black text-gray-600 tabular-nums w-8">{rank}</span>
                         <Avatar className="w-10 h-10 rounded-lg border border-gray-600">
-                          <AvatarFallback className="bg-gray-700 text-gray-400 font-bold text-sm rounded-lg">
-                            {getInitials(member.username)}
-                          </AvatarFallback>
+                          <AvatarFallback className="bg-gray-700 text-gray-400 font-bold text-sm rounded-lg">{getInitials(member.username)}</AvatarFallback>
                         </Avatar>
-                        <span className="font-bold text-gray-400 text-lg truncate">
-                          {member.username}
-                        </span>
+                        <span className="font-bold text-gray-400 text-lg truncate">{member.username}</span>
                       </div>
 
                       {/* Daily P&L */}
                       <div className="col-span-3 flex items-center gap-2 justify-start md:justify-end">
-                        {isPositive ? (
-                          <TrendingUp className="w-4 h-4 text-teal-400" />
-                        ) : (
-                          <TrendingDown className="w-4 h-4 text-red-500" />
-                        )}
-                        <span className={`font-mono font-bold text-lg tabular-nums ${
-                          isPositive ? "text-teal-400" : "text-red-500"
-                        }`}>
+                        {isPositive ? <TrendingUp className="w-4 h-4 text-teal-400" /> : <TrendingDown className="w-4 h-4 text-red-500" />}
+                        <span className={`font-mono font-bold text-lg tabular-nums ${isPositive ? "text-teal-400" : "text-red-500"}`}>
                           {formatTodayGain(member.todayGain)}
                         </span>
                       </div>
 
                       {/* Capital */}
                       <div className="hidden md:block col-span-2 text-right">
-                        <span className="font-mono font-semibold text-gray-400 tabular-nums">
-                          {formatCurrency(member.totalInvested)}
-                        </span>
+                        <span className="font-mono font-semibold text-gray-400 tabular-nums">{formatCurrency(member.totalInvested)}</span>
                       </div>
 
                       {/* Positions */}

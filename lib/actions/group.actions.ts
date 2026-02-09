@@ -258,6 +258,9 @@ export const leaveGroup = async (groupId: string): Promise<ActionResult<string>>
   } catch (error) {
     console.error("leaveGroup error:", error)
     return { success: false, error: "Unable to leave group" }
+  } finally {
+    revalidatePath("/groups")
+    revalidatePath(`/groups/${groupId}`)
   }
 }
 
