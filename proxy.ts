@@ -4,7 +4,7 @@ import { getSession } from "@/lib/actions/auth.actions"
 import { auth } from "@/lib/better-auth/auth"
 
 export async function proxy(request: NextRequest) {
-  console.log("proxy middleware")
+  const sessionCookie = getSessionCookie(request)
   const sessionCookie = getSessionCookie(request)
 
   // Check cookie presence - prevents obviously unauthorized users
