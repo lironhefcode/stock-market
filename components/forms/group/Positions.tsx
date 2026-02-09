@@ -7,8 +7,12 @@ type PositionsProps<T extends { positions: StockPosition[] }> = {
   form: ReturnType<typeof useForm<T>>
   fields: FieldArrayWithId<T, any, "id">[]
   remove: UseFieldArrayRemove
+  mode: "create" | "join"
 }
-function Positions<T extends { positions: StockPosition[] }>({ form, isSubmitting, fields, remove }: PositionsProps<T>) {
+function Positions<T extends { positions: StockPosition[] }>({ form, isSubmitting, fields, remove, mode }: PositionsProps<T>) {
+  const isCreate = mode === "create"
+  const symbolColorClass = isCreate ? "text-yellow-400" : "text-teal-400"
+  const focusColorClass = isCreate ? "focus:border-yellow-400" : "focus:border-teal-400"
   return (
     <>
       {fields.length > 0 && (
@@ -38,7 +42,7 @@ function Positions<T extends { positions: StockPosition[] }>({ form, isSubmittin
 
                 {/* Symbol */}
                 <div className="col-span-4">
-                  <span className="font-mono font-bold text-yellow-400 text-base tracking-wider">{position.symbol}</span>
+                  <span className={`font-mono font-bold text-base tracking-wider ${symbolColorClass}`}>{position.symbol}</span>
                 </div>
 
                 {/* Amount input */}
@@ -55,7 +59,7 @@ function Positions<T extends { positions: StockPosition[] }>({ form, isSubmittin
                         required: true,
                       })}
                       placeholder="0"
-                      className="pl-7 h-9 bg-gray-800 border-gray-600 text-gray-400 placeholder:text-gray-600 focus:border-yellow-400 focus:ring-0 font-mono text-right tabular-nums rounded"
+                      className={`pl-7 h-9 bg-gray-800 border-gray-600 text-gray-400 placeholder:text-gray-600 ${focusColorClass} focus:ring-0 font-mono text-right tabular-nums rounded [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none`}
                     />
                   </div>
                 </div>

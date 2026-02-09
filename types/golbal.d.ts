@@ -32,6 +32,7 @@ declare global {
     validation?: RegisterOptions
     disabled?: boolean
     value?: string
+    className?: string
   }
 
   type Option = {

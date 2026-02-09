@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ActionResult, createGroup, joinGroupWithSnapshot } from "@/lib/actions/group.actions"
 import { useRouter } from "next/navigation"
@@ -32,6 +33,9 @@ const GroupForm = ({ initialStocks, open, onOpenChange, trigger, mode }: GroupFo
   const [stockSearchOpen, setStockSearchOpen] = useState(false)
 
   const isCreate = mode === "create"
+  const accentColorClass = isCreate ? "text-yellow-400" : "text-teal-400"
+  const accentBorderClass = isCreate ? "hover:border-yellow-400/60" : "hover:border-teal-400/60"
+  const submitBtnClass = isCreate ? "bg-yellow-400 hover:bg-yellow-300 text-gray-900" : "bg-teal-600 hover:bg-teal-500 text-white"
 
   // Dynamic configuration based on mode
   const config = {
@@ -93,15 +97,17 @@ const GroupForm = ({ initialStocks, open, onOpenChange, trigger, mode }: GroupFo
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
-        <DialogContent className="bg-gray-900 text-white max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{config.title}</DialogTitle>
-            <DialogDescription>{config.description}</DialogDescription>
+        <DialogContent className="max-h-[90vh] overflow-y-auto border border-gray-600 bg-gray-900 text-gray-400 p-0 sm:max-w-2xl">
+          <div className={`h-1 ${isCreate ? "bg-yellow-400" : "bg-teal-400"}`} />
+          <DialogHeader className="px-6 pt-6 pb-1">
+            <p className="text-xs font-mono text-gray-500 uppercase tracking-[0.2em]">{isCreate ? "New League" : "Enter Existing"}</p>
+            <DialogTitle className="text-2xl md:text-3xl font-black tracking-tight text-gray-300">{config.title}</DialogTitle>
+            <DialogDescription className="text-gray-500 leading-relaxed">{config.description}</DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 py-2">
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <div className="space-y-2">
+          <div className="px-6 pb-6">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+              <div className="space-y-2 p-4 bg-gray-800/80 border border-gray-700 rounded-lg">
                 {/* Conditionally Render the specific input field */}
                 {isCreate ? (
                   <InputField
@@ -113,29 +119,47 @@ const GroupForm = ({ initialStocks, open, onOpenChange, trigger, mode }: GroupFo
                     validation={{ required: "Group name is required" }}
                   />
                 ) : (
-                  <InputField
-                    name="inviteCode"
-                    label="Invite Code"
-                    placeholder="Enter invite code"
-                    register={register}
-                    error={errors.inviteCode}
-                    validation={{ required: "Invite code is required" }}
-                  />
+                  <div className="space-y-2">
+                    <Label htmlFor="inviteCode" className="form-label">
+                      Invite Code
+                    </Label>
+                    <Input
+                      id="inviteCode"
+                      placeholder="Enter invite code"
+                      {...register("inviteCode", { required: "Invite code is required" })}
+                      className="h-12 px-3 py-3 text-white text-base placeholder:text-gray-500 border-teal-500 bg-gray-800 rounded-lg focus:border-teal-500! focus-visible:border-teal-500! focus-visible:ring-teal-500/30 focus-visible:ring-[3px]"
+                    />
+                    {errors.inviteCode && <p className="text-sm text-red-500">{errors.inviteCode.message}</p>}
+                  </div>
                 )}
               </div>
 
-              <div className="space-y-2">
-                <Label className="text-sm text-gray-300">Stock Positions</Label>
-                <Button type="button" variant="outline" onClick={() => setStockSearchOpen(true)} disabled={isSubmitting} className="w-full">
+              <div className="space-y-3 p-4 bg-gray-800/80 border border-gray-700 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <Label className="text-xs font-mono text-gray-500 uppercase tracking-[0.2em]">Stock Positions</Label>
+                  <div className="h-px flex-1 bg-gray-700" />
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setStockSearchOpen(true)}
+                  disabled={isSubmitting}
+                  className={`w-full h-11 bg-gray-900 border-gray-600 text-gray-300 hover:bg-gray-800 ${accentBorderClass} ${accentColorClass}`}
+                >
                   <Plus className="h-4 w-4 mr-2" />
                   Add Stock
                 </Button>
 
-                <Positions fields={fields} remove={remove} form={form} isSubmitting={isSubmitting} />
+                <Positions fields={fields} remove={remove} form={form} isSubmitting={isSubmitting} mode={mode} />
+                {fields.length === 0 && <p className="text-center text-sm text-gray-500 py-2">No positions added yet. Add at least one stock to continue.</p>}
               </div>
 
-              <DialogFooter>
-                <Button type="submit" disabled={isSubmitting || fields.length === 0} className="w-full sm:w-auto">
+              <DialogFooter className="pt-1">
+                <Button
+                  type="submit"
+                  disabled={isSubmitting || fields.length === 0}
+                  className={`w-full h-11 sm:w-auto font-semibold transition-colors ${submitBtnClass}`}
+                >
                   {isSubmitting ? config.submittingText : config.submitText}
                 </Button>
               </DialogFooter>
