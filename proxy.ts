@@ -5,7 +5,6 @@ import { auth } from "@/lib/better-auth/auth"
 
 export async function proxy(request: NextRequest) {
   const sessionCookie = getSessionCookie(request)
-  const sessionCookie = getSessionCookie(request)
 
   // Check cookie presence - prevents obviously unauthorized users
   if (!sessionCookie) {
