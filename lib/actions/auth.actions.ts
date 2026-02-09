@@ -5,15 +5,7 @@ import { auth } from "../better-auth/auth"
 import { inngest } from "../inngest/client"
 import { headers } from "next/headers"
 
-export const singUpWithEmail = async ({
-  email,
-  password,
-  country,
-  fullName,
-  investmentGoals,
-  riskTolerance,
-  preferredIndustry,
-}: SignUpFormData) => {
+export const singUpWithEmail = async ({ email, password, country, fullName, investmentGoals, riskTolerance, preferredIndustry }: SignUpFormData) => {
   try {
     const res = await auth.api.signUpEmail({
       body: {
@@ -79,15 +71,19 @@ export async function getSession() {
     return { success: false, error: "Failed to get session" }
   }
 }
-export async function getUser() {
+export async function getUser(): Promise<User> {
+  let session
+
   try {
-    const session = await getSession()
-    if (!session.success || !session.session?.user) {
-      redirect("/sign-in")
-    }
-    return session.session.user
+    session = await getSession()
   } catch (error) {
-    console.error("Error getting user:", error)
+    console.error("Failed to get session:", error)
+    throw error // real failure → error boundary
+  }
+
+  if (!session.success || !session.session?.user) {
     redirect("/sign-in")
   }
+
+  return session.session.user
 }

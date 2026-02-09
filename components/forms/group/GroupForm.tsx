@@ -1,15 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { ActionResult, createGroup, joinGroupWithSnapshot } from "@/lib/actions/group.actions"
 import { useRouter } from "next/navigation"
@@ -19,7 +11,7 @@ import { Plus } from "lucide-react"
 import StockSearchDialog from "@/components/StockSearchDialog"
 import { useFieldArray, useForm } from "react-hook-form"
 import InputField from "../InputField"
-import Postions from "./Postions"
+import Positions from "./Positions"
 
 type GroupFormData = {
   positions: StockPosition[]
@@ -108,7 +100,6 @@ const GroupForm = ({ initialStocks, open, onOpenChange, trigger, mode }: GroupFo
           </DialogHeader>
 
           <div className="space-y-4 py-2">
-            <h1>test</h1>
             <form onSubmit={handleSubmit(onSubmit)}>
               <div className="space-y-2">
                 {/* Conditionally Render the specific input field */}
@@ -135,18 +126,12 @@ const GroupForm = ({ initialStocks, open, onOpenChange, trigger, mode }: GroupFo
 
               <div className="space-y-2">
                 <Label className="text-sm text-gray-300">Stock Positions</Label>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setStockSearchOpen(true)}
-                  disabled={isSubmitting}
-                  className="w-full"
-                >
+                <Button type="button" variant="outline" onClick={() => setStockSearchOpen(true)} disabled={isSubmitting} className="w-full">
                   <Plus className="h-4 w-4 mr-2" />
                   Add Stock
                 </Button>
 
-                <Postions fields={fields} remove={remove} form={form} isSubmitting={isSubmitting} />
+                <Positions fields={fields} remove={remove} form={form} isSubmitting={isSubmitting} />
               </div>
 
               <DialogFooter>
@@ -159,12 +144,7 @@ const GroupForm = ({ initialStocks, open, onOpenChange, trigger, mode }: GroupFo
         </DialogContent>
       </Dialog>
 
-      <StockSearchDialog
-        open={stockSearchOpen}
-        onOpenChange={setStockSearchOpen}
-        onSelect={addPosition}
-        initialStocks={initialStocks}
-      />
+      <StockSearchDialog open={stockSearchOpen} onOpenChange={setStockSearchOpen} onSelect={addPosition} initialStocks={initialStocks} />
     </>
   )
 }

@@ -19,10 +19,17 @@ function TradingViewWidget({
   const containerRef = useTradingViewWidget(scriptUrl, config, height);
 
   return (
-    <div className="w-f\">
-      {title && <h3 className="text-lg font-medium mb-4">{title}</h3>}
+    <div className="w-full h-full">
+      {title && (
+        <div className="mb-4 flex items-center gap-3">
+          <h3 className="text-xs font-mono font-bold text-gray-500 uppercase tracking-[0.15em]">
+            {title}
+          </h3>
+          <div className="flex-1 h-px bg-gray-700" />
+        </div>
+      )}
       <div
-        className={cn("tradingview-widget-container", className)}
+        className={cn("tradingview-widget-container rounded overflow-hidden", className)}
         ref={containerRef}
         style={{ height: "100%", width: "100%" }}
       >

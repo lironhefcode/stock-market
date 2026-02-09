@@ -9,7 +9,8 @@ import { GroupMember, GroupMemberDocument, StockPosition } from "@/db/models/gro
 import { connectToDatabase } from "@/db/mongoose"
 import { auth } from "@/lib/better-auth/auth"
 import { getStockChange, getStockMetrics } from "@/lib/actions/finnhub.actions"
-import { getSession } from "./auth.actions"
+import { getSession, getUser } from "./auth.actions"
+import { revalidatePath } from "next/cache"
 
 export type ActionResult<T> = { success: true; data: T } | { success: false; error: string }
 
@@ -205,7 +206,7 @@ export const getGroupMembers = async (groupId: string): Promise<ActionResult<Gro
       members.map(async (member) => {
         const totalInvested = (member.positions || []).reduce(
           (sum: number, pos: StockPosition) => sum + pos.amountInvested,
-          0
+          0,
         )
         const todayGain = await calculateTodayGain(member.positions || [], totalInvested)
 
@@ -219,7 +220,7 @@ export const getGroupMembers = async (groupId: string): Promise<ActionResult<Gro
           todayGain,
           joinedAt: member.joinedAt,
         }
-      })
+      }),
     )
 
     enrichedMembers.sort((a, b) => b.todayGain - a.todayGain)
@@ -234,5 +235,78 @@ export const getGroupMembers = async (groupId: string): Promise<ActionResult<Gro
   } catch (error) {
     console.error("getGroupMembers error:", error)
     return { success: false, error: "Unable to fetch members" }
+  }
+}
+
+export const leaveGroup = async (groupId: string): Promise<ActionResult<string>> => {
+  try {
+    const user = await getUser()
+    if (!user) {
+      throw new Error("User not found")
+    }
+    await connectToDatabase()
+    const group = await Group.findById<GroupDocument>(groupId)
+    if (!group) {
+      throw new Error("Group not found")
+    }
+    const member = await GroupMember.findOne<GroupMemberDocument>({ groupId: group._id, userId: user.id })
+    if (!member) {
+      throw new Error("You are not a member of this group")
+    }
+    await member.deleteOne()
+    return { success: true, data: "Left group successfully" }
+  } catch (error) {
+    console.error("leaveGroup error:", error)
+    return { success: false, error: "Unable to leave group" }
+  }
+}
+
+export const updatePositions = async (positions: StockPosition[]): Promise<ActionResult<string>> => {
+  try {
+    const user = await getUser()
+    if (!user) {
+      throw new Error("User not found")
+    }
+
+    // Add validation here
+    const positionsValidation = validatePositions(positions)
+    if (!positionsValidation.valid) {
+      return { success: false, error: positionsValidation.error || "Invalid positions" }
+    }
+
+    await connectToDatabase()
+    const member = await GroupMember.findOne<GroupMemberDocument>({ userId: user.id })
+    if (!member) {
+      throw new Error("You are not a member of any group")
+    }
+
+    member.positions = positionsValidation.data! // Use validated data
+    await member.save()
+    return { success: true, data: "Positions updated successfully" }
+  } catch (error) {
+    console.error("updatePositions error:", error)
+    return { success: false, error: "Unable to update positions" }
+  } finally {
+    revalidatePath("/groups/")
+  }
+}
+
+export const getCurrentUserPositions = async (): Promise<ActionResult<StockPosition[]>> => {
+  try {
+    const user = await getUser()
+    if (!user) {
+      return { success: false, error: "User not found" }
+    }
+
+    await connectToDatabase()
+    const member = await GroupMember.findOne<GroupMemberDocument>({ userId: user.id }).lean()
+    if (!member) {
+      return { success: false, error: "You are not a member of any group" }
+    }
+
+    return { success: true, data: member.positions || [] }
+  } catch (error) {
+    console.error("getCurrentUserPositions error:", error)
+    return { success: false, error: "Unable to fetch positions" }
   }
 }
