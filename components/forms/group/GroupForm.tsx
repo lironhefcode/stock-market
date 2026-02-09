@@ -11,7 +11,7 @@ import { Plus } from "lucide-react"
 import StockSearchDialog from "@/components/StockSearchDialog"
 import { useFieldArray, useForm } from "react-hook-form"
 import InputField from "../InputField"
-import Postions from "./Positions"
+import Positions from "./Positions"
 
 type GroupFormData = {
   positions: StockPosition[]
@@ -131,7 +131,7 @@ const GroupForm = ({ initialStocks, open, onOpenChange, trigger, mode }: GroupFo
                   Add Stock
                 </Button>
 
-                <Postions fields={fields} remove={remove} form={form} isSubmitting={isSubmitting} />
+                <Positions fields={fields} remove={remove} form={form} isSubmitting={isSubmitting} />
               </div>
 
               <DialogFooter>
