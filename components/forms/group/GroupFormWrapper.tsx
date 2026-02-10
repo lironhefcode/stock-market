@@ -2,17 +2,18 @@
 import { useState } from "react"
 import GroupForm from "./GroupForm"
 import { Button } from "../../ui/button"
+import { useSearchParams } from "next/navigation"
 
 type test = {
   initialStocks: StockWithWatchlistStatus[]
   title: string
   description: string
-
+  inviteCode?: string
   mode: "create" | "join"
 }
 
-const GroupFormWrapper = ({ initialStocks, mode, title, description }: test) => {
-  const [dialogOpen, setDialogOpen] = useState(false)
+const GroupFormWrapper = ({ initialStocks, mode, title, description, inviteCode }: test) => {
+  const [dialogOpen, setDialogOpen] = useState(inviteCode ? true : false)
   const isCreate = mode === "create"
   const titleClass = isCreate ? "h-1 bg-yellow-400" : "h-1 bg-teal-400"
   const wrapperHoverClass = isCreate ? "hover:border-yellow-400/60" : "hover:border-teal-400/60"
@@ -28,6 +29,7 @@ const GroupFormWrapper = ({ initialStocks, mode, title, description }: test) => 
         <p className="mt-3 text-sm text-gray-500 leading-relaxed">{description}</p>
 
         <GroupForm
+          inviteCode={inviteCode}
           mode={mode}
           initialStocks={initialStocks}
           open={dialogOpen}

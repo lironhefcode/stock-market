@@ -26,9 +26,10 @@ interface GroupFormProps {
   onOpenChange: (open: boolean) => void
   trigger?: React.ReactNode
   mode: "create" | "join"
+  inviteCode?: string
 }
 
-const GroupForm = ({ initialStocks, open, onOpenChange, trigger, mode }: GroupFormProps) => {
+const GroupForm = ({ initialStocks, open, onOpenChange, trigger, mode, inviteCode }: GroupFormProps) => {
   const router = useRouter()
   const [stockSearchOpen, setStockSearchOpen] = useState(false)
 
@@ -51,7 +52,7 @@ const GroupForm = ({ initialStocks, open, onOpenChange, trigger, mode }: GroupFo
     defaultValues: {
       positions: [],
 
-      ...(isCreate ? { name: "" } : { inviteCode: "" }),
+      ...(isCreate ? { name: "" } : { inviteCode: inviteCode || "" }),
     },
     mode: "onBlur",
   })

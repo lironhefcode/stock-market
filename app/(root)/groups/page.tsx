@@ -4,11 +4,13 @@ import { searchStocks } from "@/lib/actions/finnhub.actions"
 import { getUserGroup } from "@/lib/actions/group.actions"
 import { redirect } from "next/navigation"
 
-const GroupsPage = async () => {
+const GroupsPage = async ({ searchParams }: { searchParams: Promise<{ inviteCode?: string }> }) => {
   const groupId = await getUserGroup()
   if (groupId) {
     redirect(`/groups/${groupId}`)
   }
+  const inviteCode = (await searchParams).inviteCode
+  console.log(inviteCode)
   const initialStocks = await searchStocks()
 
   return (
@@ -20,6 +22,7 @@ const GroupsPage = async () => {
         description="Start a private leaderboard and invite friends to compare daily portfolio performance"
       />
       <GroupFormWrapper
+        inviteCode={inviteCode}
         mode="join"
         title="Join group"
         description="Enter an invite code, add your positions, and instantly join the daily gains leaderboard."
