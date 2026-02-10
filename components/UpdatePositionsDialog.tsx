@@ -148,7 +148,7 @@ const UpdatePositionsDialog = ({ open, onOpenChange, currentPositions, initialSt
                     <div className="col-span-2" />
                   </div>
 
-                  <Postions form={form} isSubmitting={isSubmitting} fields={fields} remove={remove} />
+                  <Postions mode="create" form={form} isSubmitting={isSubmitting} fields={fields} remove={remove} />
                 </div>
               ) : (
                 <div className="py-16 text-center">
