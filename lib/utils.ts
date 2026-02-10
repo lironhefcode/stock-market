@@ -73,8 +73,7 @@ export const calculateNewsDistribution = (symbolsCount: number) => {
 }
 
 // Check for required article fields
-export const validateArticle = (article: RawNewsArticle) =>
-  article.headline && article.summary && article.url && article.datetime
+export const validateArticle = (article: RawNewsArticle) => article.headline && article.summary && article.url && article.datetime
 
 // Get today's date string in YYYY-MM-DD format
 export const getTodayString = () => new Date().toISOString().split("T")[0]
@@ -101,13 +100,21 @@ export const getChangeColorClass = (changePercent?: number) => {
   if (!changePercent) return "text-gray-400"
   return changePercent > 0 ? "text-green-500" : "text-red-500"
 }
-
-export const formatPrice = (price: number) => {
+export const getInitials = (username: string) => {
+  return username
+    .split(" ")
+    .map((word) => word[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2)
+}
+export const formatCurrency = (value: number) => {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
-    minimumFractionDigits: 2,
-  }).format(price)
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(value)
 }
 
 export const formatDateToday = new Date().toLocaleDateString("en-US", {
@@ -120,7 +127,7 @@ export const formatDateToday = new Date().toLocaleDateString("en-US", {
 
 export const getAlertText = (alert: Alert) => {
   const condition = alert.alertType === "upper" ? ">" : "<"
-  return `Price ${condition} ${formatPrice(alert.threshold)}`
+  return `Price ${condition} ${formatCurrency(alert.threshold)}`
 }
 
 export const getFormattedTodayDate = () =>
@@ -131,3 +138,9 @@ export const getFormattedTodayDate = () =>
     day: "numeric",
     timeZone: "UTC",
   })
+
+export const formatTodayGain = (gain: number) => {
+  if (!Number.isFinite(gain)) return "0.00%"
+  const sign = gain >= 0 ? "+" : ""
+  return `${sign}${gain.toFixed(2)}%`
+}
