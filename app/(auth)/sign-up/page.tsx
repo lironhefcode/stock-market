@@ -35,7 +35,19 @@ const SignUp = () => {
       const res = await singUpWithEmail(data)
       if (res.success) {
         toast.success("Sign-up successful!")
-        router.push("/")
+
+        // Check for a pending invite code cookie and redirect to groups page
+        const joinCode = document.cookie
+          .split("; ")
+          .find((c) => c.startsWith("joinCode="))
+          ?.split("=")[1]
+
+        if (joinCode) {
+          document.cookie = "joinCode=; path=/; max-age=0" // clear the cookie
+          router.push(`/groups?inviteCode=${joinCode}`)
+        } else {
+          router.push("/")
+        }
       }
     } catch (error) {
       console.error("Sign-up error:", error)

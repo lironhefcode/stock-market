@@ -24,7 +24,19 @@ const SignIn = () => {
       const res = await signInWithEmail(data);
       if (res.success) {
         toast.success("Sign-in successful!");
-        router.push("/");
+
+        // Check for a pending invite code cookie and redirect to groups page
+        const joinCode = document.cookie
+          .split("; ")
+          .find((c) => c.startsWith("joinCode="))
+          ?.split("=")[1];
+
+        if (joinCode) {
+          document.cookie = "joinCode=; path=/; max-age=0"; // clear the cookie
+          router.push(`/groups?inviteCode=${joinCode}`);
+        } else {
+          router.push("/");
+        }
         return;
       }
       const errorMessage = res.error || "Sign-in failed. Please try again.";
