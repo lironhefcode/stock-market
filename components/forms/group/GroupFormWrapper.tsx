@@ -11,7 +11,7 @@ type test = {
   mode: "create" | "join"
 }
 
-const GroupFormWarpper = ({ initialStocks, mode, title, description }: test) => {
+const GroupFormWrapper = ({ initialStocks, mode, title, description }: test) => {
   const [dialogOpen, setDialogOpen] = useState(false)
   const isCreate = mode === "create"
   const titleClass = isCreate ? "h-1 bg-yellow-400" : "h-1 bg-teal-400"
@@ -42,4 +42,4 @@ const GroupFormWarpper = ({ initialStocks, mode, title, description }: test) => 
     </div>
   )
 }
-export default GroupFormWarpper
+export default GroupFormWrapper

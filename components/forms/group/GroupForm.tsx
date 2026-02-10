@@ -85,7 +85,7 @@ const GroupForm = ({ initialStocks, open, onOpenChange, trigger, mode }: GroupFo
       router.push(`/groups/${res.data.groupId}`)
     } catch (error) {
       console.error("Group form error:", error)
-      toast.error("Failed to submit request")
+      toast.error(`Failed to  ${isCreate ? "create group" : "join group"}`)
     }
   }
 
