@@ -1,5 +1,5 @@
 export const dynamic = "force-dynamic"
-import GroupFormWarpper from "@/components/forms/group/GroupFormWarpper"
+import GroupFormWrapper from "@/components/forms/group/GroupFormWrapper"
 import { searchStocks } from "@/lib/actions/finnhub.actions"
 import { getUserGroup } from "@/lib/actions/group.actions"
 import { redirect } from "next/navigation"
@@ -13,13 +13,13 @@ const GroupsPage = async () => {
 
   return (
     <GroupPageLayout>
-      <GroupFormWarpper
+      <GroupFormWrapper
         initialStocks={initialStocks}
         mode="create"
         title="Create group"
         description="Start a private leaderboard and invite friends to compare daily portfolio performance"
       />
-      <GroupFormWarpper
+      <GroupFormWrapper
         mode="join"
         title="Join group"
         description="Enter an invite code, add your positions, and instantly join the daily gains leaderboard."
