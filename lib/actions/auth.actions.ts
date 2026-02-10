@@ -15,7 +15,7 @@ export const singUpWithEmail = async ({ email, password, country, fullName, inve
       },
     })
     if (res) {
-      await inngest.send({
+      inngest.send({
         name: "app/user.created",
         data: {
           email: email,

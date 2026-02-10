@@ -1,22 +1,18 @@
-"use client";
-import CountrySelectField from "@/components/forms/CountrySelectField";
-import FooterLink from "@/components/forms/FooterLink";
-import InputField from "@/components/forms/InputField";
-import SelectField from "@/components/forms/SelectField";
+"use client"
+import CountrySelectField from "@/components/forms/CountrySelectField"
+import FooterLink from "@/components/forms/FooterLink"
+import InputField from "@/components/forms/InputField"
+import SelectField from "@/components/forms/SelectField"
 
-import { Button } from "@/components/ui/button";
-import { singUpWithEmail } from "@/lib/actions/auth.actions";
-import {
-  INVESTMENT_GOALS,
-  PREFERRED_INDUSTRIES,
-  RISK_TOLERANCE_OPTIONS,
-} from "@/lib/constants";
-import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
+import { Button } from "@/components/ui/button"
+import { singUpWithEmail } from "@/lib/actions/auth.actions"
+import { INVESTMENT_GOALS, PREFERRED_INDUSTRIES, RISK_TOLERANCE_OPTIONS } from "@/lib/constants"
+import { useRouter } from "next/navigation"
+import { useForm } from "react-hook-form"
+import { toast } from "sonner"
 
 const SignUp = () => {
-  const router = useRouter();
+  const router = useRouter()
   const {
     control,
     register,
@@ -33,18 +29,19 @@ const SignUp = () => {
       preferredIndustry: "Technology",
     },
     mode: "onBlur",
-  });
+  })
   const onSubmit = async (data: SignUpFormData) => {
     try {
-      const res = await singUpWithEmail(data);
+      const res = await singUpWithEmail(data)
       if (res.success) {
-        router.push("/");
+        toast.success("Sign-up successful!")
+        router.push("/")
       }
     } catch (error) {
-      console.error("Sign-up error:", error);
-      toast.error("Sign-up failed. Please try again.");
+      console.error("Sign-up error:", error)
+      toast.error("Sign-up failed. Please try again.")
     }
-  };
+  }
   return (
     <>
       <h1 className="form-title">Sign up</h1>
@@ -84,13 +81,7 @@ const SignUp = () => {
             },
           }}
         />
-        <CountrySelectField
-          control={control}
-          label="Country"
-          name="country"
-          error={errors.country}
-          required
-        />
+        <CountrySelectField control={control} label="Country" name="country" error={errors.country} required />
         <SelectField
           name="investmentGoals"
           label="Investment Goals"
@@ -118,21 +109,13 @@ const SignUp = () => {
           error={errors.preferredIndustry}
           required
         />
-        <FooterLink
-          href="/sign-in"
-          linkText="Sign In"
-          text="Already have an account?"
-        />
-        <Button
-          type="submit"
-          disabled={isSubmitting}
-          className="yellow-btn w-full mt-5"
-        >
+        <FooterLink href="/sign-in" linkText="Sign In" text="Already have an account?" />
+        <Button type="submit" disabled={isSubmitting} className="yellow-btn w-full mt-5">
           {isSubmitting ? "Creating..." : "Sign Up"}
         </Button>
       </form>
     </>
-  );
-};
+  )
+}
 
-export default SignUp;
+export default SignUp
