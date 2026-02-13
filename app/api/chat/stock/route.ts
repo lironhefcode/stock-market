@@ -1,5 +1,6 @@
 import { GoogleGenAI } from "@google/genai"
 import { getStockMetrics } from "@/lib/actions/finnhub.actions"
+import { getSession } from "@/lib/actions/auth.actions"
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })
 
@@ -22,6 +23,13 @@ STRICT RESPONSE RULES:
 
 export async function POST(request: Request) {
   try {
+    const session = await getSession()
+    if (!session.success || !session.session?.user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      })
+    }
     const { symbol, messages }: ChatRequest = await request.json()
 
     if (!symbol || !messages || messages.length === 0) {

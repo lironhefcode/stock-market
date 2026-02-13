@@ -6,50 +6,45 @@ import { getWatchlistSymbolsByEmail } from "@/lib/actions/watchlist.actions"
 import { getNews } from "@/lib/actions/finnhub.actions"
 import { getFormattedTodayDate } from "@/lib/utils"
 
-export const sendSignUpEmail = inngest.createFunction(
-  { id: "sign-up-email" },
-  { event: "app/user.created" },
-  async ({ event, step }) => {
-    const userProfile = `
+export const sendSignUpEmail = inngest.createFunction({ id: "sign-up-email" }, { event: "app/user.created" }, async ({ event, step }) => {
+  const userProfile = `
             - Country: ${event.data.country}
             - Investment goals: ${event.data.investmentGoals}
             - Risk tolerance: ${event.data.riskTolerance}
             - Preferred industry: ${event.data.preferredIndustry}
         `
 
-    const prompt = PERSONALIZED_WELCOME_EMAIL_PROMPT.replace("{{userProfile}}", userProfile)
+  const prompt = PERSONALIZED_WELCOME_EMAIL_PROMPT.replace("{{userProfile}}", userProfile)
 
-    const response = await step.ai.infer("generate-welcome-intro", {
-      model: step.ai.models.gemini({ model: "gemini-2.5-flash-lite" }),
-      body: {
-        contents: [
-          {
-            role: "user",
-            parts: [{ text: prompt }],
-          },
-        ],
-      },
-    })
+  const response = await step.ai.infer("generate-welcome-intro", {
+    model: step.ai.models.gemini({ model: "gemini-2.5-flash-lite" }),
+    body: {
+      contents: [
+        {
+          role: "user",
+          parts: [{ text: prompt }],
+        },
+      ],
+    },
+  })
 
-    await step.run("send-welcome-email", async () => {
-      const part = response.candidates?.[0]?.content?.parts?.[0]
-      const introText =
-        (part && "text" in part ? part.text : null) ||
-        "Thanks for joining CoVest. You now have the tools to track markets and make smarter moves."
+  await step.run("send-welcome-email", async () => {
+    const part = response.candidates?.[0]?.content?.parts?.[0]
+    const introText =
+      (part && "text" in part ? part.text : null) || "Thanks for joining CoVest. You now have the tools to track markets and make smarter moves."
 
-      const {
-        data: { email, name },
-      } = event
+    const {
+      data: { email, name },
+    } = event
 
-      return await sendWelcomeEmail({ email, name, intro: introText })
-    })
+    return await sendWelcomeEmail({ email, name, intro: introText })
+  })
 
-    return {
-      success: true,
-      message: "Welcome email sent successfully",
-    }
+  return {
+    success: true,
+    message: "Welcome email sent successfully",
   }
-)
+})
 
 export const sendDailyNewsSummary = inngest.createFunction(
   {
@@ -63,24 +58,20 @@ export const sendDailyNewsSummary = inngest.createFunction(
     // Step #1: Get all users for news delivery (deduplicated and validated)
     const users = await step.run("get-all-users", async () => {
       const allUsers = await getAllUsersForNewsEmail()
-      
+
       // Email validation regex
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-      
+
       // Filter out invalid emails and deduplicate
       const validUsers = allUsers.filter((user) => {
         const isValid = emailRegex.test(user.email)
         if (!isValid) {
-          console.log(`Skipping invalid email: ${user.email}`)
         }
         return isValid
       })
-      
-      const uniqueUsers = Array.from(
-        new Map(validUsers.map((user) => [user.email, user])).values()
-      )
-      
-      console.log(`Found ${allUsers.length} users, ${validUsers.length} valid emails, ${uniqueUsers.length} unique`)
+
+      const uniqueUsers = Array.from(new Map(validUsers.map((user) => [user.email, user])).values())
+
       return uniqueUsers
     })
 
@@ -105,60 +96,40 @@ export const sendDailyNewsSummary = inngest.createFunction(
           }
           perUser.push({ user, articles })
         } catch (e) {
-          console.error("daily-news: error preparing user news", user.email, e)
           perUser.push({ user, articles: [] })
         }
       }
       return perUser
     })
 
-    // Step #3: Summarize news via AI and send emails
-    await step.run("summarize-and-send-emails", async () => {
-      const emailsSent: string[] = []
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    // Step #3: Summarize news and send one email per user (each send is its own
+    // idempotent sub-step so Inngest tracks completion per-recipient on retries)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    const seen = new Set<string>()
 
-      for (const { user, articles } of results) {
-        try {
-          // Skip if email is invalid
-          if (!emailRegex.test(user.email)) {
-            console.log(`Skipping invalid email: ${user.email}`)
-            continue
-          }
+    for (const { user, articles } of results) {
+      // Skip invalid or duplicate emails before creating a step
+      if (!emailRegex.test(user.email) || seen.has(user.email)) continue
+      seen.add(user.email)
 
-          // Skip if we already sent to this email
-          if (emailsSent.includes(user.email)) {
-            console.log(`Skipping duplicate email to ${user.email}`)
-            continue
-          }
+      await step.run(`send-news-email:${user.email}`, async () => {
+        const newsContent = `Here's your daily market news summary:\n\n${articles
+          .map((article, i) => `${i + 1}. ${article.headline}\n   ${article.summary || ""}`)
+          .join("\n\n")}`
 
-          const prompt = NEWS_SUMMARY_EMAIL_PROMPT.replace("{{newsData}}", JSON.stringify(articles, null, 2))
+        await sendNewsSummaryEmail({
+          email: user.email,
+          date: getFormattedTodayDate(),
+          newsContent,
+        })
 
-          // Note: We're generating summary without AI for now to avoid nested steps
-          // TODO: Move AI summarization outside step.run if needed
-          const newsContent = `Here's your daily market news summary:\n\n${articles
-            .map((article, i) => `${i + 1}. ${article.headline}\n   ${article.summary || ""}`)
-            .join("\n\n")}`
-
-          // Send email
-          await sendNewsSummaryEmail({
-            email: user.email,
-            date: getFormattedTodayDate(),
-            newsContent,
-          })
-
-          emailsSent.push(user.email)
-          console.log(`Email sent to ${user.email}`)
-        } catch (e) {
-          console.error("Failed to process news for : ", user.email, e)
-        }
-      }
-
-      return { emailsSent: emailsSent.length }
-    })
+        return { email: user.email, sent: true }
+      })
+    }
 
     return {
       success: true,
       message: "Daily news summary emails sent successfully",
     }
-  }
+  },
 )

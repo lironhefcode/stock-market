@@ -15,6 +15,7 @@ import { toast } from "sonner"
 import { getSession } from "@/lib/actions/auth.actions"
 import { Button } from "./ui/button"
 import { useRouter } from "next/navigation"
+import useWatchList from "@/hooks/useWatchList"
 
 export default function SearchCommand({ initialStocks, watchlistSymbols, renderAs = "text" }: SearchCommandProps) {
   const router = useRouter()
@@ -22,28 +23,10 @@ export default function SearchCommand({ initialStocks, watchlistSymbols, renderA
   const [loading, setloading] = useState(false)
   const [search, setSearch] = useState("")
   const [stocks, setStocks] = useState<StockWithWatchlistStatus[]>(initialStocks)
-  const [watchlist, setWatchlist] = useState<string[]>(watchlistSymbols)
+  const { watchlist, handleWatchlistChange } = useWatchList(watchlistSymbols)
   const isSearchMode = !!search.trim()
   const displayStocks = isSearchMode ? stocks : stocks?.slice(0, 10)
-  const handleWatchlistChange = async (symbol: string, company: string) => {
-    setWatchlist([symbol, ...watchlist])
-    try {
-      const { session, success, error } = await getSession()
-      if (!session?.user) {
-        throw new Error(error)
-      }
-      const res = await addToWatchlist(symbol, company, session.user.id)
 
-      if (!res.success) {
-        throw new Error(error)
-      }
-      toast.success(`added ${symbol} to watchlist`)
-      router.refresh()
-    } catch (error) {
-      toast.error("failed")
-      setWatchlist([...watchlist])
-    }
-  }
   const handleSearch = async () => {
     if (!isSearchMode) {
       return setStocks(initialStocks)
@@ -80,12 +63,7 @@ export default function SearchCommand({ initialStocks, watchlistSymbols, renderA
 
       <CommandDialog className="search-dialog" open={open} onOpenChange={setOpen}>
         <div className="search-field">
-          <CommandInput
-            value={search}
-            onValueChange={setSearch}
-            className="search-input"
-            placeholder="Type a command or search..."
-          />
+          <CommandInput value={search} onValueChange={setSearch} className="search-input" placeholder="Type a command or search..." />
         </div>
         <CommandList className="search-list scrollbar-hide">
           {loading ? (
@@ -118,9 +96,8 @@ export default function SearchCommand({ initialStocks, watchlistSymbols, renderA
                       onClick={(e) => {
                         e.stopPropagation()
                         e.preventDefault()
-                        if (!isAdded) {
-                          handleWatchlistChange(stock.symbol, stock.name)
-                        }
+
+                        handleWatchlistChange(stock.symbol)
                       }}
                     >
                       <Star className={["size-4", " text-yellow-500", isAdded ? "fill-amber-300" : ""].join(" ")} />

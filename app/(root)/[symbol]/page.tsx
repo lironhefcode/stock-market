@@ -1,6 +1,5 @@
 export const dynamic = "force-dynamic"
 import TradingViewWidget from "@/components/TradingViewWidget"
-import { Button } from "@/components/ui/button"
 import StockChatButton from "@/components/StockChatButton"
 import {
   SYMBOL_INFO_WIDGET_CONFIG,
@@ -10,6 +9,9 @@ import {
   COMPANY_FINANCIALS_WIDGET_CONFIG,
   BASELINE_WIDGET_CONFIG,
 } from "@/lib/constants"
+import { getUserWatchlist } from "@/lib/actions/watchlist.actions"
+import AddToWatchListBtn from "@/components/HandleWatchListBtn"
+import HandleWatchListBtn from "@/components/HandleWatchListBtn"
 
 interface SymbolPageProps {
   params: Promise<{ symbol: string }>
@@ -17,6 +19,7 @@ interface SymbolPageProps {
 
 const SymbolPage = async ({ params }: SymbolPageProps) => {
   const { symbol } = await params
+  const watchlist = await getUserWatchlist()
   const scriptUrl = "https://s3.tradingview.com/external-embedding/embed-widget-"
 
   return (
@@ -28,7 +31,7 @@ const SymbolPage = async ({ params }: SymbolPageProps) => {
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-100 mb-1">{symbol.toUpperCase()}</h1>
             <p className="text-sm text-gray-500">Real-time market data and analysis</p>
           </div>
-          <Button className="yellow-btn w-full sm:w-auto px-6">Add to watchlist</Button>
+          <HandleWatchListBtn symbol={symbol} initialWatchlist={watchlist} />
         </div>
       </div>
 

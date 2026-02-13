@@ -20,7 +20,6 @@ const UserDropdown = ({ user, initialStocks, watchlistSymbols }: { user: User; i
     await signOut()
     router.push("/sign-in")
   }
-  console.log(user)
 
   return (
     <DropdownMenu>
