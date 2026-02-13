@@ -40,8 +40,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+
 .cursor
-.claude
-.agens 
+.cursorrules
 .windsurf
 .agents
+.claude

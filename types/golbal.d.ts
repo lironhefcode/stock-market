@@ -260,6 +260,28 @@ declare global {
     members: GroupMemberRow[]
     group: GroupResponse
   }
+  type ChatMessage = {
+    id: string
+    role: "user" | "assistant"
+    content: string
+    timestamp: Date
+  }
+
+  type ChatRequest = {
+    symbol: string
+    messages: ChatMessage[]
+  }
+
+  type StockContextData = {
+    symbol: string
+    companyName: string
+    currentPrice: number
+    changePercent: number
+    marketCap: number
+    peRatio: number
+    weekHigh52: number
+    weekLow52: number
+  }
 }
 
 export {}
