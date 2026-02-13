@@ -13,8 +13,8 @@ export const sendWelcomeEmail = async ({ email, name, intro }: WelcomeEmailData)
   const mailOptions = {
     from: '"covest" <welcome@covest.com>',
     to: email,
-    subject: "Welcome to Liron Stock Market App!",
-    text: "thank for joining",
+    subject: "Welcome to covest!",
+    text: "thank you for joining covest!",
     html: htmlTemplate,
   }
   await transporter.sendMail(mailOptions)
