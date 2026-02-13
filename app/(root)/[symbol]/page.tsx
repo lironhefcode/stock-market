@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic"
 import TradingViewWidget from "@/components/TradingViewWidget"
 import { Button } from "@/components/ui/button"
+import StockChatButton from "@/components/StockChatButton"
 import {
   SYMBOL_INFO_WIDGET_CONFIG,
   CANDLE_CHART_WIDGET_CONFIG,
@@ -19,12 +20,26 @@ const SymbolPage = async ({ params }: SymbolPageProps) => {
   const scriptUrl = "https://s3.tradingview.com/external-embedding/embed-widget-"
 
   return (
-    <div className="min-h-screen home-wrapper">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
-        {/* Left Column - First Section */}
-        <section className="flex flex-col gap-8">
-          {/* Symbol Info Widget */}
+    <div className="min-h-screen">
+      {/* Page Header */}
+      <div className="mb-6 md:mb-8">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-100 mb-1">{symbol.toUpperCase()}</h1>
+            <p className="text-sm text-gray-500">Real-time market data and analysis</p>
+          </div>
+          <Button className="yellow-btn w-full sm:w-auto px-6">
+            Add to watchlist
+          </Button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 w-full">
+        {/* Left Column - Main Charts */}
+        <section className="lg:col-span-2 flex flex-col gap-4 md:gap-6">
+          {/* Symbol Info Widget */}
+          <div className="bg-gray-800 border border-gray-600 rounded-xl overflow-hidden p-3 md:p-4">
+            <h2 className="text-base md:text-lg font-semibold text-gray-100 mb-3">Market Overview</h2>
             <TradingViewWidget
               config={SYMBOL_INFO_WIDGET_CONFIG(symbol)}
               scriptUrl={scriptUrl + "symbol-info.js"}
@@ -33,33 +48,35 @@ const SymbolPage = async ({ params }: SymbolPageProps) => {
               className="custom-chart"
             />
           </div>
+
           {/* Candle Chart Widget */}
-          <div>
-            <TradingViewWidget
-              className="custom-chart"
-              config={CANDLE_CHART_WIDGET_CONFIG(symbol)}
-              scriptUrl={scriptUrl + "advanced-chart.js"}
-              height={600}
+          <div className="bg-gray-800 border border-gray-600 rounded-xl overflow-hidden p-3 md:p-4">
+            <h2 className="text-base md:text-lg font-semibold text-gray-100 mb-3">Price Chart</h2>
+            <TradingViewWidget 
+              className="custom-chart" 
+              config={CANDLE_CHART_WIDGET_CONFIG(symbol)} 
+              scriptUrl={scriptUrl + "advanced-chart.js"} 
+              height={400} 
             />
           </div>
-          {/* Symbol Overview */}
-          <div>
-            <TradingViewWidget
-              className="custom-chart"
-              config={BASELINE_WIDGET_CONFIG(symbol)}
-              scriptUrl={scriptUrl + "advanced-chart.js"}
-              height={600}
+
+          {/* Baseline Chart Widget */}
+          <div className="bg-gray-800 border border-gray-600 rounded-xl overflow-hidden p-3 md:p-4">
+            <h2 className="text-base md:text-lg font-semibold text-gray-100 mb-3">Performance Overview</h2>
+            <TradingViewWidget 
+              className="custom-chart" 
+              config={BASELINE_WIDGET_CONFIG(symbol)} 
+              scriptUrl={scriptUrl + "advanced-chart.js"} 
+              height={400} 
             />
           </div>
         </section>
 
-        {/* Right Column - Second Section */}
-        <section className="flex flex-col gap-8">
-          <Button className="w-full h-12 bg-blue-600 hover:bg-blue-500 text-white font-semibold shadow-lg transition-all">
-            Add to watchlist
-          </Button>
+        {/* Right Column - Analysis & Info */}
+        <section className="lg:col-span-1 flex flex-col gap-4 md:gap-6">
           {/* Technical Analysis Widget */}
-          <div>
+          <div className="bg-gray-800 border border-gray-600 rounded-xl overflow-hidden p-3 md:p-4 hover:border-gray-500 transition-colors">
+            <h2 className="text-base md:text-lg font-semibold text-gray-100 mb-3">Technical Analysis</h2>
             <TradingViewWidget
               config={TECHNICAL_ANALYSIS_WIDGET_CONFIG(symbol)}
               scriptUrl={scriptUrl + "technical-analysis.js"}
@@ -69,7 +86,8 @@ const SymbolPage = async ({ params }: SymbolPageProps) => {
           </div>
 
           {/* Company Profile Widget */}
-          <div>
+          <div className="bg-gray-800 border border-gray-600 rounded-xl overflow-hidden p-3 md:p-4 hover:border-gray-500 transition-colors">
+            <h2 className="text-base md:text-lg font-semibold text-gray-100 mb-3">Company Profile</h2>
             <TradingViewWidget
               config={COMPANY_PROFILE_WIDGET_CONFIG(symbol)}
               scriptUrl={scriptUrl + "symbol-profile.js"}
@@ -79,7 +97,8 @@ const SymbolPage = async ({ params }: SymbolPageProps) => {
           </div>
 
           {/* Company Financials Widget */}
-          <div>
+          <div className="bg-gray-800 border border-gray-600 rounded-xl overflow-hidden p-3 md:p-4 hover:border-gray-500 transition-colors">
+            <h2 className="text-base md:text-lg font-semibold text-gray-100 mb-3">Financial Data</h2>
             <TradingViewWidget
               config={COMPANY_FINANCIALS_WIDGET_CONFIG(symbol)}
               scriptUrl={scriptUrl + "financials.js"}
@@ -89,6 +108,9 @@ const SymbolPage = async ({ params }: SymbolPageProps) => {
           </div>
         </section>
       </div>
+
+      {/* AI Chat Floating Button */}
+      <StockChatButton symbol={symbol} />
     </div>
   )
 }

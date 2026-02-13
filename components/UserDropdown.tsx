@@ -14,20 +14,13 @@ import { LogOut } from "lucide-react"
 import Navitems from "./Navitems"
 import { signOut } from "@/lib/actions/auth.actions"
 
-const UserDropdown = ({
-  user,
-  initialStocks,
-  watchlistSymbols,
-}: {
-  user: User
-  initialStocks: StockWithWatchlistStatus[]
-  watchlistSymbols: string[]
-}) => {
+const UserDropdown = ({ user, initialStocks, watchlistSymbols }: { user: User; initialStocks: StockWithWatchlistStatus[]; watchlistSymbols: string[] }) => {
   const router = useRouter()
   const handleSignOut = async () => {
     await signOut()
     router.push("/sign-in")
   }
+  console.log(user)
 
   return (
     <DropdownMenu>
@@ -39,7 +32,10 @@ const UserDropdown = ({
           <Avatar className="h-7 w-7 rounded-md">
             <AvatarImage src="https://github.com/" />
             <AvatarFallback className="bg-yellow-400 text-gray-900 text-xs font-black rounded-md">
-              {user.name[0]}
+              {user.name
+                .replace(/[\u200E\u200F\u202A-\u202E]/g, "")
+                .trim()
+                .charAt(0)}
             </AvatarFallback>
           </Avatar>
           <span className="text-sm font-mono font-bold text-gray-400 hidden sm:inline">{user.name.split(" ")[0]}</span>
@@ -53,10 +49,7 @@ const UserDropdown = ({
         <DropdownMenuLabel className="px-4 py-4">
           <div className="flex items-center gap-3">
             <Avatar className="h-10 w-10 rounded-lg">
-              <AvatarImage src="https://github.com/" />
-              <AvatarFallback className="bg-yellow-400 text-gray-900 text-sm font-black rounded-lg">
-                {user.name[0]}
-              </AvatarFallback>
+              <AvatarFallback className="bg-yellow-400 text-gray-900 text-sm font-black rounded-lg">{user.name.charAt(0)}</AvatarFallback>
             </Avatar>
             <div className="flex flex-col min-w-0">
               <span className="text-sm font-bold text-gray-400 truncate">{user.name}</span>
