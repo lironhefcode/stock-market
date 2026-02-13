@@ -28,9 +28,7 @@ const SymbolPage = async ({ params }: SymbolPageProps) => {
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-100 mb-1">{symbol.toUpperCase()}</h1>
             <p className="text-sm text-gray-500">Real-time market data and analysis</p>
           </div>
-          <Button className="yellow-btn w-full sm:w-auto px-6">
-            Add to watchlist
-          </Button>
+          <Button className="yellow-btn w-full sm:w-auto px-6">Add to watchlist</Button>
         </div>
       </div>
 
@@ -52,23 +50,13 @@ const SymbolPage = async ({ params }: SymbolPageProps) => {
           {/* Candle Chart Widget */}
           <div className="bg-gray-800 border border-gray-600 rounded-xl overflow-hidden p-3 md:p-4">
             <h2 className="text-base md:text-lg font-semibold text-gray-100 mb-3">Price Chart</h2>
-            <TradingViewWidget 
-              className="custom-chart" 
-              config={CANDLE_CHART_WIDGET_CONFIG(symbol)} 
-              scriptUrl={scriptUrl + "advanced-chart.js"} 
-              height={400} 
-            />
+            <TradingViewWidget className="custom-chart" config={CANDLE_CHART_WIDGET_CONFIG(symbol)} scriptUrl={scriptUrl + "advanced-chart.js"} height={400} />
           </div>
 
           {/* Baseline Chart Widget */}
           <div className="bg-gray-800 border border-gray-600 rounded-xl overflow-hidden p-3 md:p-4">
             <h2 className="text-base md:text-lg font-semibold text-gray-100 mb-3">Performance Overview</h2>
-            <TradingViewWidget 
-              className="custom-chart" 
-              config={BASELINE_WIDGET_CONFIG(symbol)} 
-              scriptUrl={scriptUrl + "advanced-chart.js"} 
-              height={400} 
-            />
+            <TradingViewWidget className="custom-chart" config={BASELINE_WIDGET_CONFIG(symbol)} scriptUrl={scriptUrl + "advanced-chart.js"} height={400} />
           </div>
         </section>
 
