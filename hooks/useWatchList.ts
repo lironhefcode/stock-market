@@ -1,12 +1,16 @@
 import { getSession } from "@/lib/actions/auth.actions"
 import { addToWatchlist, removeFromWatchlist } from "@/lib/actions/watchlist.actions"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
 export default function useWatchList(initialWatchlist: string[]) {
   const router = useRouter()
   const [watchlist, setWatchlist] = useState<string[]>(initialWatchlist)
+
+  useEffect(() => {
+    setWatchlist(initialWatchlist)
+  }, [initialWatchlist])
   const handleWatchlistChange = async (symbol: string) => {
     const isInWatchlist = watchlist.find((item) => item === symbol)
     setWatchlist(isInWatchlist ? watchlist.filter((item) => item !== symbol) : [symbol, ...watchlist])
