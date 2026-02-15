@@ -112,10 +112,50 @@ export const sendDailyNewsSummary = inngest.createFunction(
       if (!emailRegex.test(user.email) || seen.has(user.email)) continue
       seen.add(user.email)
 
+      const aiResponse = await step.ai.infer(`summarize-news:${user.email}`, {
+        model: step.ai.models.gemini({ model: "gemini-2.5-flash-lite" }),
+        body: {
+          contents: [
+            {
+              role: "user",
+              parts: [
+                {
+                  text: NEWS_SUMMARY_EMAIL_PROMPT.replace(
+                    "{{newsData}}",
+                    JSON.stringify(
+                      articles.map((a) => ({
+                        headline: a.headline,
+                        summary: a.summary,
+                        source: a.source,
+                        url: a.url,
+                        category: a.category,
+                        related: a.related,
+                      })),
+                    ),
+                  ),
+                },
+              ],
+            },
+          ],
+        },
+      })
+
       await step.run(`send-news-email:${user.email}`, async () => {
-        const newsContent = `Here's your daily market news summary:\n\n${articles
-          .map((article, i) => `${i + 1}. ${article.headline}\n   ${article.summary || ""}`)
-          .join("\n\n")}`
+        const part = aiResponse.candidates?.[0]?.content?.parts?.[0]
+        const newsContent =
+          (part && "text" in part ? part.text : null) ||
+          articles
+            .map(
+              (article, i) => `
+              <div style="margin-bottom: 24px; padding: 20px; background-color: #212328; border-radius: 8px; border-left: 3px solid #FDD458;">
+                <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 600; color: #ffffff; line-height: 1.4;">
+                  ${i + 1}. ${article.headline}
+                </h3>
+                ${article.summary ? `<p style="margin: 0; font-size: 14px; line-height: 1.6; color: #9ca3af;">${article.summary}</p>` : ""}
+                ${article.url ? `<a href="${article.url}" style="display: inline-block; margin-top: 10px; font-size: 13px; color: #FDD458; text-decoration: none;">Read more &rarr;</a>` : ""}
+              </div>`,
+            )
+            .join("")
 
         await sendNewsSummaryEmail({
           email: user.email,
