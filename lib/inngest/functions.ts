@@ -46,14 +46,16 @@ export const sendSignUpEmail = inngest.createFunction({ id: "sign-up-email" }, {
   }
 })
 
+const triggers = process.env.NODE_ENV === "production" ? [{ event: "app/send.daily.news" }, { cron: "0 12 * * *" }] : [{ event: "app/send.daily.news" }]
 export const sendDailyNewsSummary = inngest.createFunction(
   {
     id: "daily-news-summary",
+    idempotency: `"daily-news-${new Date().toISOString().slice(0, 10)}"`,
     concurrency: {
       limit: 1, // Ensure only one instance runs at a time
     },
   },
-  [{ event: "app/send.daily.news" }, { cron: "0 12 * * *" }],
+  triggers,
   async ({ step }) => {
     // Step #1: Get all users for news delivery (deduplicated and validated)
     const users = await step.run("get-all-users", async () => {
