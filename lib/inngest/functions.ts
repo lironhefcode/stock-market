@@ -50,9 +50,12 @@ const triggers = process.env.NODE_ENV === "production" ? [{ event: "app/send.dai
 export const sendDailyNewsSummary = inngest.createFunction(
   {
     id: "daily-news-summary",
-    idempotency: `"daily-news-${new Date().toISOString().slice(0, 10)}"`,
+    rateLimit: {
+      limit: 1,
+      period: "1d",
+    },
     concurrency: {
-      limit: 1, // Ensure only one instance runs at a time
+      limit: 1,
     },
   },
   triggers,
