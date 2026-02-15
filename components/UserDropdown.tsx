@@ -20,7 +20,10 @@ const UserDropdown = ({ user, initialStocks, watchlistSymbols }: { user: User; i
     await signOut()
     router.push("/sign-in")
   }
-
+  const initials = user.name
+    .replace(/[\u200E\u200F\u202A-\u202E]/g, "")
+    .trim()
+    .charAt(0)
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -30,12 +33,7 @@ const UserDropdown = ({ user, initialStocks, watchlistSymbols }: { user: User; i
         >
           <Avatar className="h-7 w-7 rounded-md">
             <AvatarImage src="https://github.com/" />
-            <AvatarFallback className="bg-yellow-400 text-gray-900 text-xs font-black rounded-md">
-              {user.name
-                .replace(/[\u200E\u200F\u202A-\u202E]/g, "")
-                .trim()
-                .charAt(0)}
-            </AvatarFallback>
+            <AvatarFallback className="bg-yellow-400 text-gray-900 text-xs font-black rounded-md">{initials}</AvatarFallback>
           </Avatar>
           <span className="text-sm font-mono font-bold text-gray-400 hidden sm:inline">{user.name.split(" ")[0]}</span>
         </Button>
@@ -48,7 +46,7 @@ const UserDropdown = ({ user, initialStocks, watchlistSymbols }: { user: User; i
         <DropdownMenuLabel className="px-4 py-4">
           <div className="flex items-center gap-3">
             <Avatar className="h-10 w-10 rounded-lg">
-              <AvatarFallback className="bg-yellow-400 text-gray-900 text-sm font-black rounded-lg">{user.name.charAt(0)}</AvatarFallback>
+              <AvatarFallback className="bg-yellow-400 text-gray-900 text-sm font-black rounded-lg">{initials}</AvatarFallback>
             </Avatar>
             <div className="flex flex-col min-w-0">
               <span className="text-sm font-bold text-gray-400 truncate">{user.name}</span>
