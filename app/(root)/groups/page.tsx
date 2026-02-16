@@ -1,16 +1,16 @@
 export const dynamic = "force-dynamic"
 import GroupFormWrapper from "@/components/forms/group/GroupFormWrapper"
+import GroupDetail from "@/components/GroupDetail"
 import { searchStocks } from "@/lib/actions/finnhub.actions"
 import { getUserGroup } from "@/lib/actions/group.actions"
-import { redirect } from "next/navigation"
 
 const GroupsPage = async ({ searchParams }: { searchParams: Promise<{ inviteCode?: string }> }) => {
   const groupId = await getUserGroup()
   if (groupId) {
-    redirect(`/groups/${groupId}`)
+    return <GroupDetail groupId={groupId} />
   }
+
   const inviteCode = (await searchParams).inviteCode
-  console.log(inviteCode)
   const initialStocks = await searchStocks()
 
   return (
