@@ -2,7 +2,8 @@
 import { WhatsappIcon, WhatsappShareButton } from "react-share"
 
 function WhatsappBtn({ inviteCode }: { inviteCode: string }) {
-  const url = `${window.location.origin}/groups?inviteCode=${inviteCode}`
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
+  const url = `${baseUrl}/groups?inviteCode=${inviteCode}`
   return (
     <WhatsappShareButton
       title={`hey Join my group 

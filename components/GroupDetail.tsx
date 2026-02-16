@@ -1,14 +1,12 @@
 import { getCurrentUserPositions, getGroupMembers } from "@/lib/actions/group.actions"
 import GroupHeader from "@/components/Groupheader"
 import LeaderBoard from "@/components/LeaderBoard"
-type GroupPageProps = {
-  params: Promise<{ groupId: string }>
-}
 
-const GroupPage = async ({ params }: GroupPageProps) => {
-  const { groupId } = await params
-  const result = await getGroupMembers(groupId)
-  const positions = await getCurrentUserPositions()
+async function GroupDetail({ groupId }: { groupId: string }) {
+  const [result, positions] = await Promise.all([
+    getGroupMembers(groupId),
+    getCurrentUserPositions(),
+  ])
 
   if (!positions.success) {
     return (
@@ -47,7 +45,6 @@ const GroupPage = async ({ params }: GroupPageProps) => {
         positions={positions.data}
       />
       {!hasMembers ? (
-        /* ── Empty State ─────────────────────────── */
         <div className="py-24 text-center">
           <p className="text-8xl font-black text-gray-800 mb-4">0</p>
           <p className="text-lg text-gray-500">No members yet. Share the invite code.</p>
@@ -59,4 +56,4 @@ const GroupPage = async ({ params }: GroupPageProps) => {
   )
 }
 
-export default GroupPage
+export default GroupDetail
