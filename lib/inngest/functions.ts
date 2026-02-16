@@ -46,7 +46,7 @@ export const sendSignUpEmail = inngest.createFunction({ id: "sign-up-email" }, {
   }
 })
 
-const triggers = process.env.NODE_ENV === "production" ? [{ event: "app/send.daily.news" }, { cron: "0 12 * * *" }] : [{ event: "app/send.daily.news" }]
+const triggers = process.env.VERCEL_ENV === "production" ? [{ event: "app/send.daily.news" }, { cron: "TZ=Asia/Jerusalem 30 22 * * *" }] : [{ event: "app/send.daily.news" }]
 export const sendDailyNewsSummary = inngest.createFunction(
   {
     id: "daily-news-summary",
