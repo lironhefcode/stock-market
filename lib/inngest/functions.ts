@@ -46,20 +46,22 @@ export const sendSignUpEmail = inngest.createFunction({ id: "sign-up-email" }, {
   }
 })
 
-const triggers = process.env.VERCEL_ENV === "production" ? [{ event: "app/send.daily.news" }, { cron: "0 12 * * *" }] : [{ event: "app/send.daily.news" }]
 export const sendDailyNewsSummary = inngest.createFunction(
   {
     id: "daily-news-summary",
-    rateLimit: {
-      limit: 1,
-      period: "1d",
-    },
     concurrency: {
       limit: 1,
     },
   },
-  triggers,
+  [{ event: "app/send.daily.news" }, { cron: "0 12 * * *" }],
   async ({ step }) => {
+    // Runtime guard: only the Vercel production deployment should send emails.
+    // This prevents duplicate emails from Inngest branch environments.
+    const vercelEnv = process.env.VERCEL_ENV
+    if (vercelEnv && vercelEnv !== "production") {
+      return { success: false, message: `Skipped: VERCEL_ENV is "${vercelEnv}", not "production"` }
+    }
+
     // Step #1: Get all users for news delivery (deduplicated and validated)
     const users = await step.run("get-all-users", async () => {
       const allUsers = await getAllUsersForNewsEmail()
