@@ -32,7 +32,7 @@ export async function getWatchlistSymbolsByEmail(email: string): Promise<string[
       throw new Error("Database connection not established")
     }
 
-    const user = await db.collection("user").findOne<{ _id?: unknown; id?: unknown; emai?: string }>({
+    const user = await db.collection<UserDocument>("user").findOne({
       email: email,
     })
     if (!user) {

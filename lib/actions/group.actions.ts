@@ -208,7 +208,7 @@ export const getGroupMembers = async (groupId: string): Promise<ActionResult<Gro
     const objectIds = userIds.map((id) => new Types.ObjectId(id))
     const userDocs = db
       ? await db
-          .collection("user")
+          .collection<UserDocument>("user")
           .find({ _id: { $in: objectIds } }, { projection: { _id: 1, showInvestmentToGroup: 1 } })
           .toArray()
       : []
@@ -218,7 +218,7 @@ export const getGroupMembers = async (groupId: string): Promise<ActionResult<Gro
         const totalInvested = (member.positions || []).reduce((sum: number, pos: StockPosition) => sum + pos.amountInvested, 0)
         const todayGain = await calculateTodayGain(member.positions || [], totalInvested)
 
-        const showInvestment = privacyMap.get(member.userId)
+        const showInvestment = privacyMap.get(member.userId) ?? true
 
         return {
           id: member._id?.toString(),

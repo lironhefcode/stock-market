@@ -1,7 +1,6 @@
 "use server"
 
 import { connectToDatabase } from "@/db/mongoose"
-import { count } from "console"
 
 export const getAllUsersForNewsEmail = async (): Promise<UserForNewsEmail[]> => {
   try {
@@ -13,13 +12,16 @@ export const getAllUsersForNewsEmail = async (): Promise<UserForNewsEmail[]> => 
       return []
     }
     const user = await db
-      .collection("user")
-      .find({ receiveDailyEmails: { $eq: true }, email: { $exists: true, $ne: null } }, { projection: { email: 1, name: 1, id: 1, _id: 1, country: 1 } })
+      .collection<UserDocument>("user")
+      .find(
+        { receiveDailyEmails: { $eq: true }, email: { $exists: true, $ne: null as unknown as string } },
+        { projection: { email: 1, name: 1, id: 1, _id: 1, country: 1 } },
+      )
       .toArray()
     return user
       .filter((user) => user.email && user.name)
       .map((user) => ({
-        id: user.id || user._id?.toString() || "",
+        id: user._id?.toString() || "",
         email: user.email,
         name: user.name,
         country: user.country || "Not specified",
