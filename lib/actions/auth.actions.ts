@@ -5,7 +5,7 @@ import { Auth, auth } from "../better-auth/auth"
 import { inngest } from "../inngest/client"
 import { headers } from "next/headers"
 
-export const singUpWithEmail = async ({ email, password, country, fullName, investmentGoals, riskTolerance, preferredIndustry }: SignUpFormData) => {
+export const signUpWithEmail = async ({ email, password, country, fullName, investmentGoals, riskTolerance, preferredIndustry }: SignUpFormData) => {
   try {
     const res = await auth.api.signUpEmail({
       body: {
