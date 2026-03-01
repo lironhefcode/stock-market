@@ -10,8 +10,9 @@ import {
 import { useRouter } from "next/navigation"
 import { Button } from "./ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { LogOut } from "lucide-react"
+import { LogOut, Settings } from "lucide-react"
 import Navitems from "./Navitems"
+import Link from "next/link"
 import { signOut } from "@/lib/actions/auth.actions"
 
 const UserDropdown = ({ user, initialStocks, watchlistSymbols }: { user: User; initialStocks: StockWithWatchlistStatus[]; watchlistSymbols: string[] }) => {
@@ -61,6 +62,14 @@ const UserDropdown = ({ user, initialStocks, watchlistSymbols }: { user: User; i
         <nav className="sm:hidden px-2 py-2 border-b border-gray-700">
           <Navitems watchlistSymbols={watchlistSymbols} initialStocks={initialStocks} />
         </nav>
+
+        {/* Settings */}
+        <DropdownMenuItem asChild className="mx-2 my-1 px-3 py-2.5 rounded text-sm font-mono font-bold text-gray-400 uppercase tracking-wider hover:text-yellow-400 focus:text-yellow-400 focus:bg-yellow-400/10 hover:bg-yellow-400/10 transition-colors duration-150 cursor-pointer">
+          <Link href="/settings">
+            <Settings className="h-4 w-4 mr-2" />
+            Settings
+          </Link>
+        </DropdownMenuItem>
 
         {/* Logout */}
         <DropdownMenuItem

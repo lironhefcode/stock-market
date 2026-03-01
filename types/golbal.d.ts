@@ -73,6 +73,21 @@ declare global {
     id: string
     name: string
     email: string
+    country: string
+    investmentGoals: string
+    riskTolerance: string
+    preferredIndustry: string
+    receiveDailyEmails: boolean
+    showInvestmentToGroup: boolean
+  }
+
+  type UpdateUserFormData = {
+    country: string
+    investmentGoals: string
+    riskTolerance: string
+    preferredIndustry: string
+    receiveDailyEmails: boolean
+    showInvestmentToGroup: boolean
   }
 
   type Stock = {
@@ -217,6 +232,22 @@ declare global {
     threshold: number
     changePercent?: number
   }
+  type UserDocument = {
+    _id: import("mongodb").ObjectId
+    name: string
+    email: string
+    emailVerified: boolean
+    image: string | null
+    createdAt: Date
+    updatedAt: Date
+    receiveDailyEmails: boolean
+    showInvestmentToGroup: boolean
+    country: string
+    investmentGoals: string
+    riskTolerance: string
+    preferredIndustry: string
+  }
+
   type UserForNewsEmail = {
     id: string
     email: string
@@ -254,6 +285,7 @@ declare global {
     totalInvested: number
     todayGain: number
     joinedAt: string | Date
+    showInvestment: boolean
   }
 
   type GroupMembersResponse = {

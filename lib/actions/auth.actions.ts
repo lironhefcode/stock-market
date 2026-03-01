@@ -75,6 +75,31 @@ export async function getSession() {
     return { success: false, error: "Failed to get session" }
   }
 }
+export async function updateUser(data: UpdateUserFormData) {
+  const session = await getSession()
+  if (!session.success || !session.session?.user) {
+    return { success: false, error: "Not authenticated" }
+  }
+
+  try {
+    await auth.api.updateUser({
+      headers: await headers(),
+      body: {
+        country: data.country,
+        investmentGoals: data.investmentGoals,
+        riskTolerance: data.riskTolerance,
+        preferredIndustry: data.preferredIndustry,
+        receiveDailyEmails: data.receiveDailyEmails,
+        showInvestmentToGroup: data.showInvestmentToGroup,
+      },
+    })
+    return { success: true }
+  } catch (error) {
+    console.error("Update user error:", error)
+    return { success: false, error: "Failed to update user" }
+  }
+}
+
 export async function getUser(): Promise<User> {
   let session
 
