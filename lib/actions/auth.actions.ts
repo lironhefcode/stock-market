@@ -1,7 +1,7 @@
 "use server"
 
 import { redirect } from "next/navigation"
-import { auth } from "../better-auth/auth"
+import { Auth, auth } from "../better-auth/auth"
 import { inngest } from "../inngest/client"
 import { headers } from "next/headers"
 
@@ -12,6 +12,10 @@ export const singUpWithEmail = async ({ email, password, country, fullName, inve
         email: email,
         password: password,
         name: fullName,
+        country: country,
+        investmentGoals: investmentGoals,
+        riskTolerance: riskTolerance,
+        preferredIndustry: preferredIndustry,
       },
     })
     if (res) {

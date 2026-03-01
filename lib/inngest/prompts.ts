@@ -121,23 +121,18 @@ SECTION DIVIDERS:
 Between major sections, use:
 <div style="border-top: 1px solid #374151; margin: 32px 0 24px 0;"></div>
 
-Content guidelines:
-- Organize news into logical sections with icons (📊 Market Overview, 📈 Top Gainers, 📉 Top Losers, 🔥 Breaking News, 💼 Earnings Reports, 🏛️ Economic Data, etc.)
-- NEVER repeat section headings - use each section type only once per email
-- For each news article, include its actual headline/title from the news data
-- Provide MINIMUM 3 CONCISE bullet points (NO "Key Takeaways" label - start directly with bullets)
-- Each bullet should be SHORT and EASY TO UNDERSTAND - one clear sentence preferred
-- Use PLAIN ENGLISH - avoid jargon, complex financial terms, or insider language
-- Explain concepts as if talking to someone new to investing
-- Include specific numbers but explain what they mean in simple terms
-- Add "Bottom Line" context in everyday language anyone can understand
-- Use clean, light design with yellow bullets for better readability
-- Make each article easy to scan with clear spacing and structure
-- Always include simple "Read Full Story" buttons with actual URLs
-- Focus on PRACTICAL insights regular people can understand and use
-- Explain what the news means for regular investors' money
-- Keep language conversational and accessible to everyone
-- Prioritize BREVITY and CLARITY over detailed explanations
+--- CONTENT GUIDELINES & TONE ---
+- TONE: Act as a top-tier financial analyst writing a daily newsletter (similar to Morning Brew or the WSJ). Be conversational, engaging, and highly informative.
+- NO FLUFF: NEVER use generic filler phrases like "This is good news for investors," "This is a safe stock," or "This might be a smart choice." 
+- BE SPECIFIC: Every article MUST include hard data from the text (percentages, revenue numbers, price targets, or dates). If a stock dropped, explain exactly WHY it dropped based on the text.
+- THE BULLET POINTS: 
+   - Bullet 1: The core news event (What exactly happened? Include numbers).
+   - Bullet 2: The context (Why did this happen? What is the background?).
+   - Bullet 3: The forward-looking impact (What is the company doing next?).
+- THE BOTTOM LINE: This must be a sharp, analytical takeaway about the broader market or industry impact. Do NOT give financial advice or tell the reader to buy/sell. 
+- FORMATTING ENTITIES: 
+   - Stock Tickers MUST use: <strong style="color: #FDD458;">$TICKER</strong>
+   - Company Names MUST use: <strong style="color: #CCDADC;">Company Name</strong>
 
 Example structure:
 <h3 class="mobile-news-title dark-text" style="margin: 30px 0 15px 0; font-size: 20px; font-weight: 600; color: #f8f9fa; line-height: 1.3;">📊 Market Overview</h3>
