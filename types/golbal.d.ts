@@ -234,7 +234,6 @@ declare global {
   }
   type UserDocument = {
     _id: import("mongodb").ObjectId
-
     name: string
     email: string
     emailVerified: boolean

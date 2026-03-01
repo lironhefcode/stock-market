@@ -38,7 +38,7 @@ export async function getWatchlistSymbolsByEmail(email: string): Promise<string[
     if (!user) {
       return []
     }
-    const userId = (user.id as string) || user._id?.toString()
+    const userId = (user._id as unknown as string) || user._id?.toString()
     if (!userId) {
       return []
     }
