@@ -3,10 +3,7 @@ import GroupHeader from "@/components/Groupheader"
 import LeaderBoard from "@/components/LeaderBoard"
 
 async function GroupDetail({ groupId }: { groupId: string }) {
-  const [result, positions] = await Promise.all([
-    getGroupMembers(groupId),
-    getCurrentUserPositions(),
-  ])
+  const [result, positions] = await Promise.all([getGroupMembers(groupId), getCurrentUserPositions()])
 
   if (!positions.success) {
     return (
@@ -32,7 +29,7 @@ async function GroupDetail({ groupId }: { groupId: string }) {
 
   const members = result.data.members || []
   const hasMembers = members.length > 0
-  const totalGroupInvestment = members.reduce((sum, m) => sum + m.totalInvested, 0)
+  const totalGroupInvestment = members.reduce((sum, m) => (m.showInvestment ? sum + m.totalInvested : sum), 0)
 
   return (
     <section className="relative pb-16">

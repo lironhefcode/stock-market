@@ -1,5 +1,5 @@
 import { formatCurrency, formatTodayGain, getInitials } from "@/lib/utils"
-import { Crown, TrendingDown, TrendingUp } from "lucide-react"
+import { Crown, EyeOff, TrendingDown, TrendingUp } from "lucide-react"
 import { Avatar, AvatarFallback } from "./ui/avatar"
 
 function GroupMemberRow({ member, rank }: { member: GroupMemberRow; rank: number }) {
@@ -49,7 +49,17 @@ function GroupMemberRow({ member, rank }: { member: GroupMemberRow; rank: number
 
       {/* Capital */}
       <div className="hidden md:block col-span-2 text-right">
-        <span className="font-mono font-semibold text-gray-400 tabular-nums">{formatCurrency(member.totalInvested)}</span>
+        {member.showInvestment === false ? (
+          <span
+            className="inline-flex items-center justify-end gap-1.5 font-mono text-sm text-gray-600 cursor-default"
+            title="This user has disabled viewing their amount invested"
+          >
+            <EyeOff className="w-3.5 h-3.5" />
+            Hidden
+          </span>
+        ) : (
+          <span className="font-mono font-semibold text-gray-400 tabular-nums">{formatCurrency(member.totalInvested)}</span>
+        )}
       </div>
 
       {/* Positions */}

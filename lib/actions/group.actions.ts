@@ -202,23 +202,34 @@ export const getGroupMembers = async (groupId: string): Promise<ActionResult<Gro
 
     const members = await GroupMember.find({ groupId: group._id }).lean()
 
+    const db = (await connectToDatabase()).connection.db
+    const userIds = members.map((m) => m.userId)
+
+    const objectIds = userIds.map((id) => new Types.ObjectId(id))
+    const userDocs = db
+      ? await db
+          .collection("user")
+          .find({ _id: { $in: objectIds } }, { projection: { _id: 1, showInvestmentToGroup: 1 } })
+          .toArray()
+      : []
+    const privacyMap = new Map(userDocs.map((u) => [u._id.toString(), u.showInvestmentToGroup]))
     const enrichedMembers = await Promise.all(
       members.map(async (member) => {
-        const totalInvested = (member.positions || []).reduce(
-          (sum: number, pos: StockPosition) => sum + pos.amountInvested,
-          0,
-        )
+        const totalInvested = (member.positions || []).reduce((sum: number, pos: StockPosition) => sum + pos.amountInvested, 0)
         const todayGain = await calculateTodayGain(member.positions || [], totalInvested)
+
+        const showInvestment = privacyMap.get(member.userId)
 
         return {
           id: member._id?.toString(),
           groupId: member.groupId.toString(),
           userId: member.userId,
           username: member.username,
-          positions: member.positions || [],
-          totalInvested,
+          positions: showInvestment ? member.positions || [] : (member.positions || []).map((p: StockPosition) => ({ symbol: p.symbol, amountInvested: 0 })),
+          totalInvested: showInvestment ? totalInvested : 0,
           todayGain,
           joinedAt: member.joinedAt,
+          showInvestment,
         }
       }),
     )

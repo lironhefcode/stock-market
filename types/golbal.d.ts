@@ -73,6 +73,21 @@ declare global {
     id: string
     name: string
     email: string
+    country: string
+    investmentGoals: string
+    riskTolerance: string
+    preferredIndustry: string
+    receiveDailyEmails: boolean
+    showInvestmentToGroup: boolean
+  }
+
+  type UpdateUserFormData = {
+    country: string
+    investmentGoals: string
+    riskTolerance: string
+    preferredIndustry: string
+    receiveDailyEmails: boolean
+    showInvestmentToGroup: boolean
   }
 
   type Stock = {
@@ -254,6 +269,7 @@ declare global {
     totalInvested: number
     todayGain: number
     joinedAt: string | Date
+    showInvestment: boolean
   }
 
   type GroupMembersResponse = {
