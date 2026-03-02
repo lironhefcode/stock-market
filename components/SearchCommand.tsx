@@ -11,19 +11,18 @@ import Link from "next/link"
 
 import { addToWatchlist } from "@/lib/actions/watchlist.actions"
 
-import { toast } from "sonner"
-import { getSession } from "@/lib/actions/auth.actions"
 import { Button } from "./ui/button"
-import { useRouter } from "next/navigation"
+
 import useWatchList from "@/hooks/useWatchList"
 
-export default function SearchCommand({ initialStocks, watchlistSymbols, renderAs = "text" }: SearchCommandProps) {
-  const router = useRouter()
+export default function SearchCommand({ initialStocks, watchlistSymbols, renderAs = "text", quickAdd = false, onWatchlistChange }: SearchCommandProps) {
   const [open, setOpen] = useState(false)
   const [loading, setloading] = useState(false)
   const [search, setSearch] = useState("")
   const [stocks, setStocks] = useState<StockWithWatchlistStatus[]>(initialStocks)
-  const { watchlist, handleWatchlistChange } = useWatchList(watchlistSymbols)
+  const internalHook = useWatchList(watchlistSymbols)
+  const watchlist = onWatchlistChange ? watchlistSymbols : internalHook.watchlist
+  const handleWatchlistChange = onWatchlistChange ?? internalHook.handleWatchlistChange
   const isSearchMode = !!search.trim()
   const displayStocks = isSearchMode ? stocks : stocks?.slice(0, 10)
 
@@ -79,11 +78,23 @@ export default function SearchCommand({ initialStocks, watchlistSymbols, renderA
                     className="search-item justify-between"
                     key={stock.symbol}
                     onSelect={() => {
-                      setOpen(false)
-                      setSearch("")
+                      if (quickAdd) {
+                        handleWatchlistChange(stock.symbol)
+                      } else {
+                        setOpen(false)
+                        setSearch("")
+                      }
                     }}
                   >
-                    <Link href={`/${stock.symbol}`} className="flex flex-grow-2 items-center gap-2">
+                    <Link
+                      onClick={(e) => {
+                        if (quickAdd) {
+                          e.preventDefault() // Prevent Next.js navigation
+                        }
+                      }}
+                      href={`/${stock.symbol}`}
+                      className="flex flex-grow-2 items-center gap-2"
+                    >
                       <TrendingUp className="h-4 w-4 text-gray-500" />
                       <div className="flex-1">
                         <div className="search-item-name">{stock.name}</div>

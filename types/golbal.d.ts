@@ -61,6 +61,8 @@ declare global {
     renderAs?: "button" | "text"
     label?: string
     initialStocks: StockWithWatchlistStatus[]
+    quickAdd?: boolean
+    onWatchlistChange?: (symbol: string) => void
   }
 
   type WelcomeEmailData = {

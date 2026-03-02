@@ -4,12 +4,10 @@ import InputField from "@/components/forms/InputField";
 import { Button } from "@/components/ui/button";
 import { signInWithEmail } from "@/lib/actions/auth.actions";
 
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 const SignIn = () => {
-  const router = useRouter();
   const {
     control,
     register,
@@ -25,17 +23,16 @@ const SignIn = () => {
       if (res.success) {
         toast.success("Sign-in successful!");
 
-        // Check for a pending invite code cookie and redirect to groups page
         const joinCode = document.cookie
           .split("; ")
           .find((c) => c.startsWith("joinCode="))
           ?.split("=")[1];
 
         if (joinCode) {
-          document.cookie = "joinCode=; path=/; max-age=0"; // clear the cookie
-          router.push(`/groups?inviteCode=${joinCode}`);
+          document.cookie = "joinCode=; path=/; max-age=0";
+          window.location.href = `/groups?inviteCode=${joinCode}`;
         } else {
-          router.push("/");
+          window.location.href = "/";
         }
         return;
       }
