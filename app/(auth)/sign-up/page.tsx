@@ -7,12 +7,10 @@ import SelectField from "@/components/forms/SelectField"
 import { Button } from "@/components/ui/button"
 import { signUpWithEmail } from "@/lib/actions/auth.actions"
 import { INVESTMENT_GOALS, PREFERRED_INDUSTRIES, RISK_TOLERANCE_OPTIONS } from "@/lib/constants"
-import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
 const SignUp = () => {
-  const router = useRouter()
   const {
     control,
     register,
@@ -36,17 +34,16 @@ const SignUp = () => {
       if (res.success) {
         toast.success("Sign-up successful!")
 
-        // Check for a pending invite code cookie and redirect to groups page
         const joinCode = document.cookie
           .split("; ")
           .find((c) => c.startsWith("joinCode="))
           ?.split("=")[1]
 
         if (joinCode) {
-          document.cookie = "joinCode=; path=/; max-age=0" // clear the cookie
-          router.push(`/groups?inviteCode=${joinCode}`)
+          document.cookie = "joinCode=; path=/; max-age=0"
+          window.location.href = `/groups?inviteCode=${joinCode}`
         } else {
-          router.push("/")
+          window.location.href = "/"
         }
       }
     } catch (error) {
