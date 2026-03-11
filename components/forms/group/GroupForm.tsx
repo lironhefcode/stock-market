@@ -83,7 +83,7 @@ const GroupForm = ({ initialStocks, open, onOpenChange, trigger, mode, inviteCod
       }
       toast.success(isCreate ? "Group created!" : "Joined group successfully!")
       onOpenChange(false) // Close dialog on success
-      router.push(`/groups/${res.data.groupId}`)
+      router.refresh()
     } catch (error) {
       console.error("Group form error:", error)
       toast.error(`Failed to  ${isCreate ? "create group" : "join group"}`)

@@ -3,8 +3,10 @@ import { NEWS_SUMMARY_EMAIL_PROMPT, PERSONALIZED_WELCOME_EMAIL_PROMPT } from "@/
 import { sendNewsSummaryEmail, sendWelcomeEmail } from "@/lib/nodemailer"
 import { getAllUsersForNewsEmail } from "@/lib/actions/user.actions"
 import { getWatchlistSymbolsByEmail } from "@/lib/actions/watchlist.actions"
-import { getNews } from "@/lib/actions/finnhub.actions"
+import { getNews, getStockChange } from "@/lib/actions/finnhub.actions"
 import { getFormattedTodayDate } from "@/lib/utils"
+import { Alert } from "@/db/models/alert"
+import { connectToDatabase } from "@/db/mongoose"
 
 export const sendSignUpEmail = inngest.createFunction({ id: "sign-up-email" }, { event: "app/user.created" }, async ({ event, step }) => {
   const userProfile = `
@@ -103,6 +105,7 @@ export const sendDailyNewsSummary = inngest.createFunction(
           }
           perUser.push({ user, articles })
         } catch (e) {
+          console.error("Error fetching user news:", e)
           perUser.push({ user, articles: [] })
         }
       }
@@ -178,5 +181,64 @@ export const sendDailyNewsSummary = inngest.createFunction(
       success: true,
       message: "Daily news summary emails sent successfully",
     }
+  },
+)
+
+export const checkPriceAlerts = inngest.createFunction(
+  {
+    id: "check-price-alerts",
+    concurrency: { limit: 1 },
+  },
+  [{ cron: "*/2 * * * *" }],
+  async ({ step }) => {
+    const activeAlerts = await step.run("fetch-active-alerts", async () => {
+      await connectToDatabase()
+      const alerts = await Alert.find({ status: "active" }).lean()
+      return alerts.map((a) => ({
+        id: String(a._id),
+        symbol: a.symbol,
+        alertType: a.alertType,
+        threshold: a.threshold,
+      }))
+    })
+
+    if (!activeAlerts || activeAlerts.length === 0) {
+      return { success: true, message: "No active alerts to check", triggered: 0 }
+    }
+
+    const uniqueSymbols = [...new Set(activeAlerts.map((a) => a.symbol))]
+
+    const quotes = await step.run("fetch-quotes", async () => {
+      const data = await getStockChange(uniqueSymbols)
+      const result: Record<string, number> = {}
+      for (const [symbol, quote] of Object.entries(data)) {
+        if (quote?.c != null) result[symbol] = quote.c
+      }
+      return result
+    })
+
+    const triggeredCount = await step.run("evaluate-and-trigger", async () => {
+      await connectToDatabase()
+      let triggered = 0
+      const now = new Date()
+
+      for (const alert of activeAlerts) {
+        const price = quotes[alert.symbol]
+        if (price == null) continue
+
+        const shouldTrigger = (alert.alertType === "upper" && price >= alert.threshold) || (alert.alertType === "lower" && price <= alert.threshold)
+
+        if (shouldTrigger) {
+          await Alert.updateOne({ _id: alert.id, status: "active" }, { $set: { status: "triggered", triggeredAt: now, lastCheckedPrice: price } })
+          triggered++
+        } else {
+          await Alert.updateOne({ _id: alert.id }, { $set: { lastCheckedPrice: price } })
+        }
+      }
+
+      return triggered
+    })
+
+    return { success: true, message: `Alert check complete`, triggered: triggeredCount }
   },
 )
