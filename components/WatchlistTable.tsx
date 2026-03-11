@@ -25,7 +25,7 @@ export default function WatchlistTable({ watchlistItems, quotes, profiles, metri
   const [removingSymbols, setRemovingSymbols] = useState<Set<string>>(new Set())
   const [optimisticItems, setOptimisticItems] = useState<string[]>(watchlistItems)
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
-  const [alertStock, setAlertStock] = useState<{ symbol: string; company: string; price?: number } | null>(null)
+  const [alertStock, setAlertStock] = useState<{ symbol: string; company: string; price: number } | null>(null)
 
   // Sync optimistic state with props when they change (e.g., after router.refresh())
   useEffect(() => {
@@ -211,20 +211,14 @@ export default function WatchlistTable({ watchlistItems, quotes, profiles, metri
               return (
                 <TableRow key={symbol} className="watchlist-modern-row">
                   <TableCell>
-                    <Checkbox
-                      checked={selectedItems.has(symbol)}
-                      onCheckedChange={() => toggleSelectItem(symbol)}
-                      className="border-gray-500"
-                    />
+                    <Checkbox checked={selectedItems.has(symbol)} onCheckedChange={() => toggleSelectItem(symbol)} className="border-gray-500" />
                   </TableCell>
                   <TableCell className="watchlist-modern-cell">
                     <Link href={`/${symbol}`} className="watchlist-symbol-link">
                       {symbol}
                     </Link>
                   </TableCell>
-                  <TableCell className="watchlist-modern-cell watchlist-company-name">
-                    {profile?.name ?? "N/A"}
-                  </TableCell>
+                  <TableCell className="watchlist-modern-cell watchlist-company-name">{profile?.name ?? "N/A"}</TableCell>
                   <TableCell className="watchlist-modern-cell watchlist-price">{formatPrice(currentPrice)}</TableCell>
                   <TableCell className="watchlist-modern-cell">
                     <div className={`flex items-center gap-1.5 ${isPositive ? "text-teal-400" : "text-red-500"}`}>
@@ -244,7 +238,7 @@ export default function WatchlistTable({ watchlistItems, quotes, profiles, metri
                   <TableCell className="watchlist-modern-cell">{formatPERatio(peRatio)}</TableCell>
                   <TableCell className="text-center">
                     <button
-                      onClick={() => setAlertStock({ symbol, company: profile?.name ?? symbol, price: currentPrice })}
+                      onClick={() => currentPrice != null && setAlertStock({ symbol, company: profile?.name ?? symbol, price: currentPrice })}
                       className="add-alert mx-auto"
                       title="Create price alert"
                     >
@@ -264,7 +258,7 @@ export default function WatchlistTable({ watchlistItems, quotes, profiles, metri
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                          onClick={() => setAlertStock({ symbol, company: profile?.name ?? symbol, price: currentPrice })}
+                          onClick={() => currentPrice != null && setAlertStock({ symbol, company: profile?.name ?? symbol, price: currentPrice })}
                           className="text-yellow-500 hover:text-yellow-400 hover:bg-yellow-500/10 cursor-pointer"
                         >
                           <Bell className="h-4 w-4 mr-2" />
@@ -290,6 +284,7 @@ export default function WatchlistTable({ watchlistItems, quotes, profiles, metri
 
       {alertStock && (
         <CreateAlertDialog
+        
           open={!!alertStock}
           onOpenChange={(open) => !open && setAlertStock(null)}
           symbol={alertStock.symbol}
