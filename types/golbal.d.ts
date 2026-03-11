@@ -168,7 +168,7 @@ declare global {
   }
 
   type AlertsListProps = {
-    alertData: Alert[] | undefined
+    alerts: Alert[]
   }
 
   type MarketNewsArticle = {
@@ -202,6 +202,7 @@ declare global {
     alertName: string
     alertType: "upper" | "lower"
     threshold: string
+    currentPrice?: number
   }
 
   type AlertModalProps = {
@@ -229,10 +230,12 @@ declare global {
     symbol: string
     company: string
     alertName: string
-    currentPrice: number
     alertType: "upper" | "lower"
     threshold: number
-    changePercent?: number
+    status: "active" | "triggered" | "dismissed"
+    lastCheckedPrice?: number | null
+    triggeredAt?: string | null
+    createdAt: string
   }
   type UserDocument = {
     _id: import("mongodb").ObjectId

@@ -10,7 +10,7 @@ import {
 import { useRouter } from "next/navigation"
 import { Button } from "./ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { LogOut, Settings } from "lucide-react"
+import { LogOut, Menu, Settings } from "lucide-react"
 import Navitems from "./Navitems"
 import Link from "next/link"
 import { signOut } from "@/lib/actions/auth.actions"
@@ -32,7 +32,8 @@ const UserDropdown = ({ user, initialStocks, watchlistSymbols }: { user: User; i
           variant="ghost"
           className="flex items-center gap-2 px-3 py-2 rounded-lg border-0 bg-transparent hover:bg-gray-800 sm:border sm:border-gray-600 sm:bg-gray-800 sm:hover:bg-gray-700 sm:hover:border-yellow-400/50 transition-colors duration-150 cursor-pointer"
         >
-          <Avatar className="h-7 w-7 rounded-md">
+          <Menu className="h-6 w-6 text-gray-400 sm:hidden" />
+          <Avatar className="h-7 w-7 rounded-md hidden sm:flex">
             <AvatarImage src="https://github.com/" />
             <AvatarFallback className="bg-yellow-400 text-gray-900 text-xs font-black rounded-md">{initials}</AvatarFallback>
           </Avatar>
