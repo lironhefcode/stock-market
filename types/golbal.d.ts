@@ -202,7 +202,7 @@ declare global {
     alertName: string
     alertType: "upper" | "lower"
     threshold: string
-    currentPrice?: number
+    currentPrice: number
   }
 
   type AlertModalProps = {
@@ -232,6 +232,7 @@ declare global {
     alertName: string
     alertType: "upper" | "lower"
     threshold: number
+    priceAtCreation: number
     status: "active" | "triggered" | "dismissed"
     lastCheckedPrice?: number | null
     triggeredAt?: string | null

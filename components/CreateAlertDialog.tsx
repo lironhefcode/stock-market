@@ -7,45 +7,31 @@ import { toast } from "sonner"
 import { useCreateAlert, useUpdateAlert } from "@/hooks/useAlerts"
 import { TrendingUp, TrendingDown } from "lucide-react"
 import { ALERT_TYPE_OPTIONS } from "@/lib/constants"
+import { validateAlertThreshold } from "@/lib/alert-utils"
 
-type CreateAlertDialogProps = {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  symbol: string
-  company: string
-  currentPrice?: number
-  editAlert?: {
-    id: string
-    alertName: string
-    alertType: "upper" | "lower"
-    threshold: number
-  }
-}
+type CreateAlertDialogProps =
+  | {
+      // Create mode
+      open: boolean
+      onOpenChange: (open: boolean) => void
+      symbol: string
+      company: string
+      currentPrice: number
+      editAlert?: never
+    }
+  | {
+      // Edit mode
+      open: boolean
+      onOpenChange: (open: boolean) => void
+      symbol: string
+      company: string
+      currentPrice?: never
+      editAlert: Pick<Alert, "id" | "alertName" | "alertType" | "threshold" | "priceAtCreation">
+    }
 
-function getThresholdError(alertType: "upper" | "lower", threshold: string, currentPrice?: number) {
-  if (!threshold.trim()) {
-    return null
-  }
-
-  const thresholdNum = Number(threshold)
-
-  if (Number.isNaN(thresholdNum) || thresholdNum <= 0) {
-    return "Please enter a valid price threshold"
-  }
-
-  if (currentPrice === undefined || Number.isNaN(currentPrice)) {
-    return null
-  }
-
-  if (alertType === "upper" && thresholdNum <= currentPrice) {
-    return `An above alert must be higher than $${currentPrice.toFixed(2)}`
-  }
-
-  if (alertType === "lower" && thresholdNum >= currentPrice) {
-    return `A below alert must be lower than $${currentPrice.toFixed(2)}`
-  }
-
-  return null
+function getThresholdError(alertType: "upper" | "lower", threshold: string, currentPrice: number) {
+  if (!threshold.trim()) return null
+  return validateAlertThreshold(alertType, threshold, currentPrice)
 }
 
 export default function CreateAlertDialog({ open, onOpenChange, symbol, company, currentPrice, editAlert }: CreateAlertDialogProps) {
@@ -58,7 +44,9 @@ export default function CreateAlertDialog({ open, onOpenChange, symbol, company,
   const createMutation = useCreateAlert()
   const updateMutation = useUpdateAlert()
   const isSubmitting = createMutation.isPending || updateMutation.isPending
-  const thresholdError = getThresholdError(alertType, threshold, currentPrice)
+  const validationPrice = isEditing ? editAlert.priceAtCreation : currentPrice
+  console.log("validationPrice", validationPrice)
+  const thresholdError = getThresholdError(alertType, threshold, validationPrice ?? 0)
 
   const handleOpenChange = (nextOpen: boolean) => {
     if (!nextOpen) {
@@ -88,12 +76,20 @@ export default function CreateAlertDialog({ open, onOpenChange, symbol, company,
     if (isEditing) {
       updateMutation.mutate(
         { alertId: editAlert.id, data: { alertName: alertName.trim(), alertType, threshold, currentPrice } },
-        { onSuccess: (res) => { if (res.success) handleOpenChange(false) } },
+        {
+          onSuccess: (res) => {
+            if (res.success) handleOpenChange(false)
+          },
+        },
       )
     } else {
       createMutation.mutate(
         { symbol, company, alertName: alertName.trim(), alertType, threshold, currentPrice },
-        { onSuccess: (res) => { if (res.success) handleOpenChange(false) } },
+        {
+          onSuccess: (res) => {
+            if (res.success) handleOpenChange(false)
+          },
+        },
       )
     }
   }
@@ -104,9 +100,7 @@ export default function CreateAlertDialog({ open, onOpenChange, symbol, company,
         <div className="h-1 bg-yellow-400" />
 
         <DialogHeader className="px-6 pt-6 pb-0">
-          <p className="text-xs font-mono text-gray-500 uppercase tracking-[0.2em] mb-2">
-            {isEditing ? "Edit Alert" : "New Alert"}
-          </p>
+          <p className="text-xs font-mono text-gray-500 uppercase tracking-[0.2em] mb-2">{isEditing ? "Edit Alert" : "New Alert"}</p>
           <DialogTitle className="alert-title">
             {symbol} &middot; {company}
           </DialogTitle>
@@ -122,9 +116,7 @@ export default function CreateAlertDialog({ open, onOpenChange, symbol, company,
 
         <form id="alert-form" onSubmit={handleSubmit} className="px-6 pt-5 pb-2 space-y-4">
           <div>
-            <label className="text-xs font-mono text-gray-500 uppercase tracking-wider mb-1.5 block">
-              Alert Name
-            </label>
+            <label className="text-xs font-mono text-gray-500 uppercase tracking-wider mb-1.5 block">Alert Name</label>
             <Input
               value={alertName}
               onChange={(e) => setAlertName(e.target.value)}
@@ -135,9 +127,7 @@ export default function CreateAlertDialog({ open, onOpenChange, symbol, company,
           </div>
 
           <div>
-            <label className="text-xs font-mono text-gray-500 uppercase tracking-wider mb-1.5 block">
-              Condition
-            </label>
+            <label className="text-xs font-mono text-gray-500 uppercase tracking-wider mb-1.5 block">Condition</label>
             <div className="grid grid-cols-2 gap-2">
               {ALERT_TYPE_OPTIONS.map((opt) => {
                 const isSelected = alertType === opt.value
@@ -165,9 +155,7 @@ export default function CreateAlertDialog({ open, onOpenChange, symbol, company,
           </div>
 
           <div>
-            <label className="text-xs font-mono text-gray-500 uppercase tracking-wider mb-1.5 block">
-              Price Threshold ($)
-            </label>
+            <label className="text-xs font-mono text-gray-500 uppercase tracking-wider mb-1.5 block">Price Threshold ($)</label>
             <Input
               type="number"
               step="0.01"
@@ -181,11 +169,11 @@ export default function CreateAlertDialog({ open, onOpenChange, symbol, company,
             />
             {thresholdError ? (
               <p className="mt-1.5 text-xs text-red-400">{thresholdError}</p>
-            ) : currentPrice !== undefined ? (
+            ) : validationPrice !== undefined ? (
               <p className="mt-1.5 text-xs text-gray-500">
                 {alertType === "upper"
-                  ? `Choose a price above $${currentPrice.toFixed(2)} to avoid triggering immediately.`
-                  : `Choose a price below $${currentPrice.toFixed(2)} to avoid triggering immediately.`}
+                  ? `Choose a price above $${validationPrice.toFixed(2)} to avoid triggering immediately.`
+                  : `Choose a price below $${validationPrice.toFixed(2)} to avoid triggering immediately.`}
               </p>
             ) : null}
           </div>

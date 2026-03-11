@@ -2,6 +2,7 @@
 
 import { Alert as AlertModel } from "@/db/models/alert"
 import { connectToDatabase } from "@/db/mongoose"
+import { validateAlertThreshold } from "@/lib/alert-utils"
 import { getSession } from "./auth.actions"
 
 function toAlert(doc: Record<string, any>): Alert {
@@ -12,33 +13,12 @@ function toAlert(doc: Record<string, any>): Alert {
     alertName: doc.alertName,
     alertType: doc.alertType,
     threshold: doc.threshold,
+    priceAtCreation: doc.priceAtCreation,
     status: doc.status,
     lastCheckedPrice: doc.lastCheckedPrice ?? null,
     triggeredAt: doc.triggeredAt ? new Date(doc.triggeredAt).toISOString() : null,
     createdAt: new Date(doc.createdAt).toISOString(),
   }
-}
-
-function validateAlertThreshold(alertType: "upper" | "lower", threshold: string | number, currentPrice?: number) {
-  const thresholdNum = Number(threshold)
-
-  if (Number.isNaN(thresholdNum) || thresholdNum <= 0) {
-    return "Please enter a valid price threshold"
-  }
-
-  if (currentPrice === undefined || Number.isNaN(currentPrice)) {
-    return null
-  }
-
-  if (alertType === "upper" && thresholdNum <= currentPrice) {
-    return `Price above alerts must be greater than the current price of $${currentPrice.toFixed(2)}`
-  }
-
-  if (alertType === "lower" && thresholdNum >= currentPrice) {
-    return `Price below alerts must be less than the current price of $${currentPrice.toFixed(2)}`
-  }
-
-  return null
 }
 
 export async function createAlert(data: AlertData) {
@@ -62,6 +42,7 @@ export async function createAlert(data: AlertData) {
       alertName: data.alertName,
       alertType: data.alertType,
       threshold: Number(data.threshold),
+      priceAtCreation: data.currentPrice,
       status: "active",
     })
 
@@ -80,8 +61,16 @@ export async function updateAlert(alertId: string, data: Partial<AlertData>) {
       return { success: false, message: "Not authenticated" }
     }
 
-    if (data.alertType !== undefined && data.threshold !== undefined) {
-      const validationError = validateAlertThreshold(data.alertType, data.threshold, data.currentPrice)
+    const existing = await AlertModel.findOne({ _id: alertId, userId: res.session.user.id })
+    if (!existing) {
+      return { success: false, message: "Alert not found" }
+    }
+
+    const mergedAlertType = data.alertType ?? existing.alertType
+    const mergedThreshold = data.threshold ?? existing.threshold
+
+    if (data.alertType !== undefined || data.threshold !== undefined) {
+      const validationError = validateAlertThreshold(mergedAlertType, mergedThreshold, existing.priceAtCreation)
       if (validationError) {
         return { success: false, message: validationError }
       }
@@ -92,15 +81,7 @@ export async function updateAlert(alertId: string, data: Partial<AlertData>) {
     if (data.alertType !== undefined) updateFields.alertType = data.alertType
     if (data.threshold !== undefined) updateFields.threshold = Number(data.threshold)
 
-    const alert = await AlertModel.findOneAndUpdate(
-      { _id: alertId, userId: res.session.user.id },
-      { $set: updateFields },
-      { new: true },
-    )
-
-    if (!alert) {
-      return { success: false, message: "Alert not found" }
-    }
+    const alert = await AlertModel.findOneAndUpdate({ _id: alertId, userId: res.session.user.id }, { $set: updateFields }, { new: true })
 
     return { success: true, message: "Alert updated successfully", alert: toAlert(alert) }
   } catch (error) {
@@ -137,9 +118,7 @@ export async function getUserActiveAlerts(): Promise<Alert[]> {
       return []
     }
 
-    const docs = await AlertModel.find({ userId: res.session.user.id, status: "active" })
-      .sort({ createdAt: -1 })
-      .lean()
+    const docs = await AlertModel.find({ userId: res.session.user.id, status: "active" }).sort({ createdAt: -1 }).lean()
 
     return docs.map(toAlert)
   } catch (error) {
@@ -156,9 +135,7 @@ export async function getTriggeredAlerts(): Promise<Alert[]> {
       return []
     }
 
-    const docs = await AlertModel.find({ userId: res.session.user.id, status: "triggered" })
-      .sort({ triggeredAt: -1 })
-      .lean()
+    const docs = await AlertModel.find({ userId: res.session.user.id, status: "triggered" }).sort({ triggeredAt: -1 }).lean()
 
     return docs.map(toAlert)
   } catch (error) {
@@ -200,10 +177,7 @@ export async function dismissAllAlerts() {
       return { success: false, message: "Not authenticated" }
     }
 
-    await AlertModel.updateMany(
-      { userId: res.session.user.id, status: "triggered" },
-      { $set: { status: "dismissed" } },
-    )
+    await AlertModel.updateMany({ userId: res.session.user.id, status: "triggered" }, { $set: { status: "dismissed" } })
 
     return { success: true, message: "All alerts dismissed" }
   } catch (error) {

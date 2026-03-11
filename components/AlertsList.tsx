@@ -52,11 +52,7 @@ export default function AlertsList({ initialAlerts }: AlertsListProps) {
               <div className="alert-actions">
                 <p className="text-xs text-gray-500 font-mono">Active</p>
                 <div className="flex gap-1">
-                  <button
-                    onClick={() => setEditingAlert(alert)}
-                    className="alert-update-btn p-1.5"
-                    title="Edit alert"
-                  >
+                  <button onClick={() => setEditingAlert(alert)} className="alert-update-btn p-1.5" title="Edit alert">
                     <Pencil className="h-4 w-4" />
                   </button>
                   <button
@@ -80,12 +76,12 @@ export default function AlertsList({ initialAlerts }: AlertsListProps) {
           onOpenChange={(open) => !open && setEditingAlert(null)}
           symbol={editingAlert.symbol}
           company={editingAlert.company}
-          currentPrice={editingAlert.lastCheckedPrice ?? undefined}
           editAlert={{
             id: editingAlert.id,
             alertName: editingAlert.alertName,
             alertType: editingAlert.alertType,
             threshold: editingAlert.threshold,
+            priceAtCreation: editingAlert.priceAtCreation,
           }}
         />
       )}

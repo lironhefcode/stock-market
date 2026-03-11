@@ -7,6 +7,7 @@ export interface AlertDocument extends Document {
   alertName: string
   alertType: "upper" | "lower"
   threshold: number
+  priceAtCreation: number
   status: "active" | "triggered" | "dismissed"
   lastCheckedPrice?: number
   triggeredAt?: Date
@@ -42,6 +43,10 @@ const alertSchema = new Schema<AlertDocument>(
       enum: ["upper", "lower"],
     },
     threshold: {
+      type: Number,
+      required: true,
+    },
+    priceAtCreation: {
       type: Number,
       required: true,
     },
