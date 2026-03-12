@@ -66,7 +66,7 @@ export default function StockSearchDialog({ open, onOpenChange, onSelect, initia
                   <div className="flex-1">
                     <div className="search-item-name">{stock.name}</div>
                     <div className="text-sm text-gray-500">
-                      {stock.symbol} | {stock.exchange}
+                      {stock.symbol} | {stock.exchange.split(" ")[0]}
                     </div>
                   </div>
                 </div>
