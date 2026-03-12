@@ -1,11 +1,11 @@
 "use server"
 
-import { Alert as AlertModel } from "@/db/models/alert"
+import { Alert as AlertModel, AlertDocument } from "@/db/models/alert"
 import { connectToDatabase } from "@/db/mongoose"
 import { validateAlertThreshold } from "@/lib/alert-utils"
 import { getSession } from "./auth.actions"
 
-function toAlert(doc: Record<string, any>): Alert {
+function toAlert(doc: AlertDocument): Alert {
   return {
     id: String(doc._id),
     symbol: doc.symbol,
@@ -76,7 +76,7 @@ export async function updateAlert(alertId: string, data: Partial<AlertData>) {
       }
     }
 
-    const updateFields: Record<string, unknown> = {}
+    const updateFields: { alertName?: string; alertType?: "upper" | "lower"; threshold?: number } = {}
     if (data.alertName !== undefined) updateFields.alertName = data.alertName
     if (data.alertType !== undefined) updateFields.alertType = data.alertType
     if (data.threshold !== undefined) updateFields.threshold = Number(data.threshold)

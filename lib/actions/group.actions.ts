@@ -25,19 +25,15 @@ const generateInviteCode = async () => {
   throw new Error("Unable to generate unique invite code")
 }
 
-const validatePositions = (positions: unknown): { valid: boolean; data?: StockPosition[]; error?: string } => {
-  if (!Array.isArray(positions) || positions.length === 0) {
+const validatePositions = (positions: StockPosition[]): { valid: boolean; data?: StockPosition[]; error?: string } => {
+  if (positions.length === 0) {
     return { valid: false, error: "At least one stock position is required" }
   }
 
   const validated: StockPosition[] = []
   for (const pos of positions) {
-    if (!pos || typeof pos !== "object") {
-      return { valid: false, error: "Invalid position format" }
-    }
-
-    const symbol = typeof (pos as any).symbol === "string" ? (pos as any).symbol.trim().toUpperCase() : ""
-    const amountInvested = Number((pos as any).amountInvested)
+    const symbol = pos.symbol?.trim().toUpperCase() ?? ""
+    const amountInvested = Number(pos.amountInvested)
 
     if (!symbol) {
       return { valid: false, error: "Stock symbol is required for all positions" }

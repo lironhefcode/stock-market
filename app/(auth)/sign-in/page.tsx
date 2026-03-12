@@ -1,13 +1,26 @@
-"use client";
-import FooterLink from "@/components/forms/FooterLink";
-import InputField from "@/components/forms/InputField";
-import { Button } from "@/components/ui/button";
-import { signInWithEmail } from "@/lib/actions/auth.actions";
+"use client"
+import { useEffect, useState } from "react"
+import FooterLink from "@/components/forms/FooterLink"
+import InputField from "@/components/forms/InputField"
+import { Button } from "@/components/ui/button"
+import { signInWithEmail } from "@/lib/actions/auth.actions"
 
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
+import { useForm } from "react-hook-form"
+import { toast } from "sonner"
 
 const SignIn = () => {
+  const [redirectInfo, setRedirectInfo] = useState<{ joinCode?: string } | null>(null)
+
+  useEffect(() => {
+    if (!redirectInfo) return
+    if (redirectInfo.joinCode) {
+      document.cookie = "joinCode=; path=/; max-age=0"
+      window.location.href = `/groups?inviteCode=${redirectInfo.joinCode}`
+    } else {
+      window.location.href = "/"
+    }
+  }, [redirectInfo])
+
   const {
     control,
     register,
@@ -16,33 +29,28 @@ const SignIn = () => {
   } = useForm<SignInFormData>({
     defaultValues: { email: "", password: "" },
     mode: "onBlur",
-  });
+  })
   const onSubmit = async (data: SignInFormData) => {
     try {
-      const res = await signInWithEmail(data);
+      const res = await signInWithEmail(data)
       if (res.success) {
-        toast.success("Sign-in successful!");
+        toast.success("Sign-in successful!")
 
         const joinCode = document.cookie
           .split("; ")
           .find((c) => c.startsWith("joinCode="))
-          ?.split("=")[1];
+          ?.split("=")[1]
 
-        if (joinCode) {
-          document.cookie = "joinCode=; path=/; max-age=0";
-          window.location.href = `/groups?inviteCode=${joinCode}`;
-        } else {
-          window.location.href = "/";
-        }
-        return;
+        setRedirectInfo({ joinCode })
+        return
       }
-      const errorMessage = res.error || "Sign-in failed. Please try again.";
-      toast.error(errorMessage);
+      const errorMessage = res.error || "Sign-in failed. Please try again."
+      toast.error(errorMessage)
     } catch (error) {
-      console.error("Sign-in error:", error);
-      toast.error("An unexpected error occurred. Please try again.");
+      console.error("Sign-in error:", error)
+      toast.error("An unexpected error occurred. Please try again.")
     }
-  };
+  }
   return (
     <>
       <h1 className="form-title">Sign in</h1>
@@ -74,21 +82,13 @@ const SignIn = () => {
             },
           }}
         />
-        <FooterLink
-          href="/sign-up"
-          linkText="Sign up"
-          text="Don't have an account?"
-        />
-        <Button
-          type="submit"
-          disabled={isSubmitting}
-          className="yellow-btn w-full mt-5"
-        >
+        <FooterLink href="/sign-up" linkText="Sign up" text="Don't have an account?" />
+        <Button type="submit" disabled={isSubmitting} className="yellow-btn w-full mt-5">
           {isSubmitting ? "Signing In..." : "Sign In"}
         </Button>
       </form>
     </>
-  );
-};
+  )
+}
 
-export default SignIn;
+export default SignIn

@@ -96,7 +96,6 @@ declare global {
     symbol: string
     name: string
     exchange: string
-    type: string
   }
 
   type StockWithWatchlistStatus = Stock & {
@@ -106,8 +105,7 @@ declare global {
   type FinnhubSearchResult = {
     symbol: string
     description: string
-    displaySymbol?: string
-    type: string
+    exchange: string
   }
 
   type FinnhubSearchResponse = {
@@ -320,6 +318,22 @@ declare global {
     weekHigh52: number
     weekLow52: number
   }
-}
+  interface FinnhubProfile {
+    country: string
+    currency: string
+    exchange: string
+    name: string
+    ticker: string
+    ipo: string
+    marketCapitalization: number
+    shareOutstanding: number
+    logo: string
+    phone: string
+    weburl: string
+    finnhubIndustry: string
+  }
 
+  // If the symbol is invalid, Finnhub returns an empty object
+  type ProfileResponse = FinnhubProfile | Record<string, never>
+}
 export {}

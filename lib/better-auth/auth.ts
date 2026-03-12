@@ -2,10 +2,10 @@ import { connectToDatabase } from "@/db/mongoose"
 import { betterAuth } from "better-auth"
 import { mongodbAdapter } from "better-auth/adapters/mongodb"
 import { nextCookies } from "better-auth/next-js"
-
-const createAuth = (db: NonNullable<Awaited<ReturnType<typeof connectToDatabase>>["connection"]["db"]>) =>
+type MongoDbParam = Parameters<typeof mongodbAdapter>[0]
+const createAuth = (db: MongoDbParam) =>
   betterAuth({
-    database: mongodbAdapter(db as any),
+    database: mongodbAdapter(db),
     user: {
       additionalFields: {
         receiveDailyEmails: {
