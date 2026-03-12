@@ -1,4 +1,5 @@
 "use client"
+import { useEffect, useState } from "react"
 import CountrySelectField from "@/components/forms/CountrySelectField"
 import FooterLink from "@/components/forms/FooterLink"
 import InputField from "@/components/forms/InputField"
@@ -11,6 +12,18 @@ import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
 const SignUp = () => {
+  const [redirectInfo, setRedirectInfo] = useState<{ joinCode?: string } | null>(null)
+
+  useEffect(() => {
+    if (!redirectInfo) return
+    if (redirectInfo.joinCode) {
+      document.cookie = "joinCode=; path=/; max-age=0"
+      window.location.href = `/groups?inviteCode=${redirectInfo.joinCode}`
+    } else {
+      window.location.href = "/"
+    }
+  }, [redirectInfo])
+
   const {
     control,
     register,
@@ -39,12 +52,7 @@ const SignUp = () => {
           .find((c) => c.startsWith("joinCode="))
           ?.split("=")[1]
 
-        if (joinCode) {
-          document.cookie = "joinCode=; path=/; max-age=0"
-          window.location.href = `/groups?inviteCode=${joinCode}`
-        } else {
-          window.location.href = "/"
-        }
+        setRedirectInfo({ joinCode })
       }
     } catch (error) {
       console.error("Sign-up error:", error)

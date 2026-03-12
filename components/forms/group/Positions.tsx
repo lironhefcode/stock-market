@@ -1,11 +1,11 @@
 import { Input } from "@/components/ui/input"
 import { X } from "lucide-react"
-import { FieldArrayWithId, Path, UseFieldArrayRemove, useForm } from "react-hook-form"
+import { Path, UseFieldArrayRemove, useForm } from "react-hook-form"
 
 type PositionsProps<T extends { positions: StockPosition[] }> = {
   isSubmitting: boolean
   form: ReturnType<typeof useForm<T>>
-  fields: FieldArrayWithId<T, any, "id">[]
+  fields: (StockPosition & { id: string })[]
   remove: UseFieldArrayRemove
   mode: "create" | "join"
 }
@@ -27,7 +27,7 @@ function Positions<T extends { positions: StockPosition[] }>({ form, isSubmittin
 
           {/* Rows */}
           {fields.map((field, i) => {
-            const position = field as unknown as StockPosition & { id: string }
+            const position = field
             const amountPath = `positions.${i}.amountInvested` as Path<T>
 
             return (

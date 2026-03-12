@@ -13,12 +13,7 @@ interface StockSearchDialogProps {
   initialStocks?: StockWithWatchlistStatus[]
 }
 
-export default function StockSearchDialog({
-  open,
-  onOpenChange,
-  onSelect,
-  initialStocks = [],
-}: StockSearchDialogProps) {
+export default function StockSearchDialog({ open, onOpenChange, onSelect, initialStocks = [] }: StockSearchDialogProps) {
   const [loading, setLoading] = useState(false)
   const [search, setSearch] = useState("")
   const [stocks, setStocks] = useState<StockWithWatchlistStatus[]>(initialStocks)
@@ -55,12 +50,7 @@ export default function StockSearchDialog({
   return (
     <CommandDialog className="search-dialog" open={open} onOpenChange={onOpenChange}>
       <div className="search-field">
-        <CommandInput
-          value={search}
-          onValueChange={setSearch}
-          className="search-input"
-          placeholder="Type a command or search..."
-        />
+        <CommandInput value={search} onValueChange={setSearch} className="search-input" placeholder="Type a command or search..." />
       </div>
       <CommandList className="search-list scrollbar-hide">
         {loading ? (
@@ -70,17 +60,13 @@ export default function StockSearchDialog({
         ) : (
           <CommandGroup>
             {displayStocks?.map((stock) => (
-              <CommandItem
-                className="search-item justify-between"
-                key={stock.symbol}
-                onSelect={() => handleSelect(stock.symbol)}
-              >
+              <CommandItem className="search-item justify-between" key={stock.symbol} onSelect={() => handleSelect(stock.symbol)}>
                 <div className="flex flex-grow-2 items-center gap-2">
                   <TrendingUp className="h-4 w-4 text-gray-500" />
                   <div className="flex-1">
                     <div className="search-item-name">{stock.name}</div>
                     <div className="text-sm text-gray-500">
-                      {stock.symbol} | {stock.exchange} | {stock.type}
+                      {stock.symbol} | {stock.exchange.split(" ")[0]}
                     </div>
                   </div>
                 </div>

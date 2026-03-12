@@ -40,16 +40,14 @@ export const getNews = cache(async (symbols?: string[]): Promise<MarketNewsArtic
       await Promise.all(
         cleanSymbols.map(async (sym) => {
           try {
-            const url = `${FINNHUB_BASE_URL}/company-news?symbol=${encodeURIComponent(sym)}&from=${range.from}&to=${
-              range.to
-            }&token=${token}`
+            const url = `${FINNHUB_BASE_URL}/company-news?symbol=${encodeURIComponent(sym)}&from=${range.from}&to=${range.to}&token=${token}`
             const articles = await fetchJSON<RawNewsArticle[]>(url, 300)
             perSymbolArticles[sym] = (articles || []).filter(validateArticle)
           } catch (e) {
             console.error("Error fetching company news for", sym, e)
             perSymbolArticles[sym] = []
           }
-        })
+        }),
       )
 
       const collected: MarketNewsArticle[] = []
@@ -118,32 +116,25 @@ export const searchStocks = cache(async (query?: string): Promise<StockWithWatch
         top.map(async (sym) => {
           try {
             const url = `${FINNHUB_BASE_URL}/stock/profile2?symbol=${encodeURIComponent(sym)}&token=${token}`
-            // Revalidate every hour
-            const profile = await fetchJSON<any>(url, 3600)
-            return { sym, profile } as { sym: string; profile: any }
+            const profile = await fetchJSON<ProfileResponse>(url, 3600)
+            return { sym, profile }
           } catch (e) {
             console.error("Error fetching profile2 for", sym, e)
-            return { sym, profile: null } as { sym: string; profile: any }
+            return { sym, profile: null as ProfileResponse | null }
           }
-        })
+        }),
       )
-
-      results = profiles
+      const filterProfiles = profiles.filter(({ profile }) => profile !== null)
+      results = filterProfiles
         .map(({ sym, profile }) => {
           const symbol = sym.toUpperCase()
-          const name: string | undefined = profile?.name || profile?.ticker || undefined
-          const exchange: string | undefined = profile?.exchange || undefined
-          if (!name) return undefined
+
           const r: FinnhubSearchResult = {
             symbol,
-            description: name,
-            displaySymbol: symbol,
-            type: "Common Stock",
+            description: profile?.name || profile?.ticker || "",
+            exchange: profile?.exchange || "",
           }
-          // We don't include exchange in FinnhubSearchResult type, so carry via mapping later using profile
-          // To keep pipeline simple, attach exchange via closure map stage
-          // We'll reconstruct exchange when mapping to final type
-          ;(r as any).__exchange = exchange // internal only
+
           return r
         })
         .filter((x): x is FinnhubSearchResult => Boolean(x))
@@ -157,15 +148,11 @@ export const searchStocks = cache(async (query?: string): Promise<StockWithWatch
       .map((r) => {
         const upper = (r.symbol || "").toUpperCase()
         const name = r.description || upper
-        const exchangeFromDisplay = (r.displaySymbol as string | undefined) || undefined
-        const exchangeFromProfile = (r as any).__exchange as string | undefined
-        const exchange = exchangeFromDisplay || exchangeFromProfile || "US"
-        const type = r.type || "Stock"
+        const exchange = r.exchange || "US"
         const item: StockWithWatchlistStatus = {
           symbol: upper,
           name,
           exchange,
-          type,
           isInWatchlist: false,
         }
         return item
@@ -194,12 +181,9 @@ export const getStockChange = cache(async (symbols: string[]) => {
     const quotes: Record<string, QuoteData> = {}
     await Promise.all(
       cleanSymbols.map(async (symbol) => {
-        const quote = await fetchJSON<QuoteData>(
-          `${FINNHUB_BASE_URL}/quote?symbol=${encodeURIComponent(symbol)}&token=${token}`,
-          60
-        )
+        const quote = await fetchJSON<QuoteData>(`${FINNHUB_BASE_URL}/quote?symbol=${encodeURIComponent(symbol)}&token=${token}`, 60)
         quotes[symbol] = quote
-      })
+      }),
     )
 
     return quotes
@@ -209,7 +193,7 @@ export const getStockChange = cache(async (symbols: string[]) => {
 })
 export const getStockMetrics = cache(
   async (
-    symbols: string[]
+    symbols: string[],
   ): Promise<{
     quotes: Record<string, QuoteData>
     profiles: Record<string, ProfileData>
@@ -238,14 +222,8 @@ export const getStockMetrics = cache(
           try {
             const [quote, profile, metric] = await Promise.all([
               fetchJSON<QuoteData>(`${FINNHUB_BASE_URL}/quote?symbol=${encodeURIComponent(symbol)}&token=${token}`, 60),
-              fetchJSON<ProfileData>(
-                `${FINNHUB_BASE_URL}/stock/profile2?symbol=${encodeURIComponent(symbol)}&token=${token}`,
-                60
-              ),
-              fetchJSON<FinancialsData>(
-                `${FINNHUB_BASE_URL}/stock/metric?symbol=${encodeURIComponent(symbol)}&token=${token}`,
-                60
-              ),
+              fetchJSON<ProfileData>(`${FINNHUB_BASE_URL}/stock/profile2?symbol=${encodeURIComponent(symbol)}&token=${token}`, 60),
+              fetchJSON<FinancialsData>(`${FINNHUB_BASE_URL}/stock/metric?symbol=${encodeURIComponent(symbol)}&token=${token}`, 60),
             ])
             quotes[symbol] = quote
             profiles[symbol] = profile
@@ -254,7 +232,7 @@ export const getStockMetrics = cache(
             console.error(`Error fetching data for ${symbol}:`, e)
             // Don't add to objects if fetch fails
           }
-        })
+        }),
       )
 
       return { quotes, profiles, metrics }
@@ -262,5 +240,5 @@ export const getStockMetrics = cache(
       console.error("Error in getStockMetrics:", err)
       return { quotes: {}, profiles: {}, metrics: {} }
     }
-  }
+  },
 )
