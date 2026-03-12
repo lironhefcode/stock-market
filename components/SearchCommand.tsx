@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "./ui/command"
 
 import { Star, TrendingUp } from "lucide-react"
@@ -8,8 +8,6 @@ import { searchStocks } from "@/lib/actions/finnhub.actions"
 
 import { useDebounce } from "@/hooks/useDebounce"
 import Link from "next/link"
-
-import { addToWatchlist } from "@/lib/actions/watchlist.actions"
 
 import { Button } from "./ui/button"
 
@@ -26,7 +24,7 @@ export default function SearchCommand({ initialStocks, watchlistSymbols, renderA
   const isSearchMode = !!search.trim()
   const displayStocks = isSearchMode ? stocks : stocks?.slice(0, 10)
 
-  const handleSearch = async () => {
+  const handleSearch = useCallback(async () => {
     if (!isSearchMode) {
       return setStocks(initialStocks)
     }
@@ -34,17 +32,17 @@ export default function SearchCommand({ initialStocks, watchlistSymbols, renderA
     try {
       const res = await searchStocks(search.trim())
       setStocks(res)
-    } catch (error) {
+    } catch {
       setStocks([])
     } finally {
       setloading(false)
     }
-  }
+  }, [initialStocks, isSearchMode, search])
   const debounceSearch = useDebounce(handleSearch, 300)
 
   useEffect(() => {
     debounceSearch()
-  }, [search])
+  }, [debounceSearch])
   return (
     <>
       {renderAs == "text" ? (

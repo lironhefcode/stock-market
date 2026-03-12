@@ -1,7 +1,7 @@
 "use client"
 
 import { Bot, User, Copy, Check } from "lucide-react"
-import { useState, useCallback, useMemo } from "react"
+import { useState, useCallback } from "react"
 import DOMPurify from "dompurify"
 import { marked } from "marked"
 /** Converts basic markdown to HTML for AI responses */

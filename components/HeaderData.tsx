@@ -4,7 +4,7 @@ import UserDropdown from "./UserDropdown"
 import AlertsBell from "./AlertsBell"
 import { getUserWatchlist } from "@/lib/actions/watchlist.actions"
 import { getTriggeredAlerts } from "@/lib/actions/alert.actions"
-import { getSession, getUser } from "@/lib/actions/auth.actions"
+import { getUser } from "@/lib/actions/auth.actions"
 
 export default async function HeaderData() {
   const [initialStocks, watchlistSymbols, user, triggeredAlerts] = await Promise.all([

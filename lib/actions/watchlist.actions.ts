@@ -1,7 +1,6 @@
 "use server"
 
 import { Watchlist } from "@/db/models/watchlist"
-import { WatchlistItem } from "@/db/models/watchlist"
 import { connectToDatabase } from "@/db/mongoose"
 import { getSession } from "./auth.actions"
 export async function getUserWatchlist() {
@@ -20,7 +19,7 @@ export async function getUserWatchlist() {
 
     const watchlistItems = await Watchlist.find({ userId: user.id }, { symbol: 1 }).lean()
     return watchlistItems.map((item) => String(item.symbol))
-  } catch (error) {
+  } catch {
     return []
   }
 }
@@ -57,7 +56,7 @@ export async function addToWatchlist(symbol: string, userId: string) {
     if (!db) {
       throw new Error("Database connection not established")
     }
-    const watchlistItem = await Watchlist.create({ userId: userId, symbol: symbol })
+    await Watchlist.create({ userId: userId, symbol: symbol })
     return { success: true, message: "added succsesfullt" }
   } catch (error) {
     console.error("Error adding to watchlist:", error)

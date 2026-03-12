@@ -8,7 +8,7 @@ import { Group, GroupDocument } from "@/db/models/group"
 import { GroupMember, GroupMemberDocument, StockPosition } from "@/db/models/groupMember"
 import { connectToDatabase } from "@/db/mongoose"
 import { auth } from "@/lib/better-auth/auth"
-import { getStockChange, getStockMetrics } from "@/lib/actions/finnhub.actions"
+import { getStockChange } from "@/lib/actions/finnhub.actions"
 import { getSession, getUser } from "./auth.actions"
 import { revalidatePath } from "next/cache"
 
@@ -132,7 +132,7 @@ export const getUserGroup = async () => {
       return
     }
     return group.groupId.toString()
-  } catch (error) {
+  } catch {
     return
   }
 }

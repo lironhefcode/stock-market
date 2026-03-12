@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "./ui/command"
 import { TrendingUp } from "lucide-react"
 import { searchStocks } from "@/lib/actions/finnhub.actions"
@@ -20,7 +20,7 @@ export default function StockSearchDialog({ open, onOpenChange, onSelect, initia
   const isSearchMode = !!search.trim()
   const displayStocks = isSearchMode ? stocks : stocks?.slice(0, 10)
 
-  const handleSearch = async () => {
+  const handleSearch = useCallback(async () => {
     if (!isSearchMode) {
       return setStocks(initialStocks)
     }
@@ -28,18 +28,18 @@ export default function StockSearchDialog({ open, onOpenChange, onSelect, initia
     try {
       const res = await searchStocks(search.trim())
       setStocks(res)
-    } catch (error) {
+    } catch {
       setStocks([])
     } finally {
       setLoading(false)
     }
-  }
+  }, [initialStocks, isSearchMode, search])
 
   const debounceSearch = useDebounce(handleSearch, 300)
 
   useEffect(() => {
     debounceSearch()
-  }, [search])
+  }, [debounceSearch])
 
   const handleSelect = (symbol: string) => {
     onSelect(symbol)

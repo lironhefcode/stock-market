@@ -1,12 +1,5 @@
 import Image from "next/image"
 import Link from "next/link"
-import Navitems from "./Navitems"
-import UserDropdown from "./UserDropdown"
-import { searchStocks } from "@/lib/actions/finnhub.actions"
-import { getUserWatchlist, getWatchlistSymbolsByEmail } from "@/lib/actions/watchlist.actions"
-import { WatchlistItem } from "@/db/models/watchlist"
-import { getSession } from "@/lib/actions/auth.actions"
-import { redirect } from "next/navigation"
 import HeaderData from "./HeaderData"
 import { Suspense } from "react"
 

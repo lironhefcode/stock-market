@@ -10,7 +10,6 @@ import {
   BASELINE_WIDGET_CONFIG,
 } from "@/lib/constants"
 import { getUserWatchlist } from "@/lib/actions/watchlist.actions"
-import AddToWatchListBtn from "@/components/HandleWatchListBtn"
 import HandleWatchListBtn from "@/components/HandleWatchListBtn"
 
 interface SymbolPageProps {
