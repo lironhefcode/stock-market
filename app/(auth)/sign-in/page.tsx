@@ -22,7 +22,6 @@ const SignIn = () => {
   }, [redirectInfo])
 
   const {
-    control,
     register,
     handleSubmit,
     formState: { errors, isSubmitting },

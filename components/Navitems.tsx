@@ -3,7 +3,6 @@ import { NAV_ITEMS } from "@/lib/constants"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import SearchCommand from "./SearchCommand"
-import { WatchlistItem } from "@/db/models/watchlist"
 
 const Navitems = ({
   watchlistSymbols,

@@ -1,7 +1,7 @@
 "use server"
 
 import { redirect } from "next/navigation"
-import { Auth, auth } from "../better-auth/auth"
+import { auth } from "../better-auth/auth"
 import { inngest } from "../inngest/client"
 import { headers } from "next/headers"
 

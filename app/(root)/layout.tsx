@@ -1,7 +1,4 @@
 import Header from "@/components/Header"
-import { auth } from "@/lib/better-auth/auth"
-import { headers } from "next/headers"
-import { redirect } from "next/navigation"
 
 import React from "react"
 

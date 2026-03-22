@@ -187,7 +187,7 @@ export const getStockChange = cache(async (symbols: string[]) => {
     )
 
     return quotes
-  } catch (error) {
+  } catch {
     return {}
   }
 })

@@ -8,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Button } from "@/components/ui/button"
 import { updateUser } from "@/lib/actions/auth.actions"
 import { INVESTMENT_GOALS, PREFERRED_INDUSTRIES, RISK_TOLERANCE_OPTIONS } from "@/lib/constants"
-import { User, Mail, Globe, Target, Shield, Bell } from "lucide-react"
+import { User, Mail, Shield, Bell } from "lucide-react"
 
 const SettingsForm = ({ user }: { user: User }) => {
   const {

@@ -1,11 +1,10 @@
 "use client"
 
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
 import { updatePositions } from "@/lib/actions/group.actions"
-import { useState, useEffect, useMemo, useRef } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { toast } from "sonner"
-import { Plus, X } from "lucide-react"
+import { Plus } from "lucide-react"
 import StockSearchDialog from "@/components/StockSearchDialog"
 import { useFieldArray, useForm } from "react-hook-form"
 import Postions from "./forms/group/Positions"

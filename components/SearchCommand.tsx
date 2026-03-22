@@ -1,50 +1,37 @@
 "use client"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "./ui/command"
 
 import { Star, TrendingUp } from "lucide-react"
 
 import { searchStocks } from "@/lib/actions/finnhub.actions"
 
-import { useDebounce } from "@/hooks/useDebounce"
 import Link from "next/link"
-
-import { addToWatchlist } from "@/lib/actions/watchlist.actions"
 
 import { Button } from "./ui/button"
 
-import useWatchList from "@/hooks/useWatchList"
+import { useQuery } from "@tanstack/react-query"
+import { useDebounceValue } from "@/hooks/useDebounceValue"
+import { useWatchList, useWatchlistChange } from "@/hooks/useWatchList"
 
-export default function SearchCommand({ initialStocks, watchlistSymbols, renderAs = "text", quickAdd = false, onWatchlistChange }: SearchCommandProps) {
+export default function SearchCommand({ initialStocks, watchlistSymbols, renderAs = "text", quickAdd = false }: SearchCommandProps) {
   const [open, setOpen] = useState(false)
-  const [loading, setloading] = useState(false)
-  const [search, setSearch] = useState("")
-  const [stocks, setStocks] = useState<StockWithWatchlistStatus[]>(initialStocks)
-  const internalHook = useWatchList(watchlistSymbols)
-  const watchlist = onWatchlistChange ? watchlistSymbols : internalHook.watchlist
-  const handleWatchlistChange = onWatchlistChange ?? internalHook.handleWatchlistChange
-  const isSearchMode = !!search.trim()
-  const displayStocks = isSearchMode ? stocks : stocks?.slice(0, 10)
+  const [query, setQuery] = useState("")
+  const debounceQuery = useDebounceValue(query, 300)
+  const { data: stocks, isFetching } = useQuery({
+    queryKey: ["searchStocks", debounceQuery],
+    queryFn: () => searchStocks(debounceQuery.trim()),
+    enabled: debounceQuery.trim().length > 0,
+  })
+  const handleWatchlistChange = useWatchlistChange(watchlistSymbols)
+  const { data: watchlist } = useWatchList(watchlistSymbols)
+  const isSearchMode = query.trim().length > 0
+  const displayStocks = isSearchMode ? stocks || [] : initialStocks?.slice(0, 10)
 
-  const handleSearch = async () => {
-    if (!isSearchMode) {
-      return setStocks(initialStocks)
-    }
-    setloading(true)
-    try {
-      const res = await searchStocks(search.trim())
-      setStocks(res)
-    } catch (error) {
-      setStocks([])
-    } finally {
-      setloading(false)
-    }
+  const handleSearch = (value: string) => {
+    setQuery(value)
   }
-  const debounceSearch = useDebounce(handleSearch, 300)
 
-  useEffect(() => {
-    debounceSearch()
-  }, [search])
   return (
     <>
       {renderAs == "text" ? (
@@ -62,10 +49,10 @@ export default function SearchCommand({ initialStocks, watchlistSymbols, renderA
 
       <CommandDialog className="search-dialog" open={open} onOpenChange={setOpen}>
         <div className="search-field">
-          <CommandInput value={search} onValueChange={setSearch} className="search-input" placeholder="Type a command or search..." />
+          <CommandInput value={query} onValueChange={handleSearch} className="search-input" placeholder="Type a command or search..." />
         </div>
         <CommandList className="search-list scrollbar-hide">
-          {loading ? (
+          {isFetching ? (
             <CommandEmpty>loading stock</CommandEmpty>
           ) : displayStocks?.length === 0 ? (
             <div>{isSearchMode ? "No results found" : "No stocks available"}</div>
@@ -82,7 +69,7 @@ export default function SearchCommand({ initialStocks, watchlistSymbols, renderA
                         handleWatchlistChange(stock.symbol)
                       } else {
                         setOpen(false)
-                        setSearch("")
+                        setQuery("")
                       }
                     }}
                   >

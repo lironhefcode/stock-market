@@ -2,7 +2,6 @@
 import { useState } from "react"
 import GroupForm from "./GroupForm"
 import { Button } from "../../ui/button"
-import { useSearchParams } from "next/navigation"
 
 type test = {
   initialStocks: StockWithWatchlistStatus[]
