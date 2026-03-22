@@ -94,7 +94,7 @@ export default function WatchlistTable({ watchlistItems, quotes, profiles, metri
         throw new Error("User not authenticated")
       }
 
-      const result = await removeFromWatchlist(symbol, sessionResult.session.user.id)
+      const result = await removeFromWatchlist(symbol)
       if (result.success) {
         toast.success(result.message || "Removed from watchlist successfully")
         router.refresh()
@@ -284,7 +284,6 @@ export default function WatchlistTable({ watchlistItems, quotes, profiles, metri
 
       {alertStock && (
         <CreateAlertDialog
-        
           open={!!alertStock}
           onOpenChange={(open) => !open && setAlertStock(null)}
           symbol={alertStock.symbol}
