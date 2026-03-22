@@ -15,14 +15,10 @@ export default function useWatchList(initialWatchlist: string[]) {
     const isInWatchlist = watchlist.find((item) => item === symbol)
     setWatchlist(isInWatchlist ? watchlist.filter((item) => item !== symbol) : [symbol, ...watchlist])
     try {
-      const { session, error } = await getSession()
-      if (!session?.user) {
-        throw new Error(error)
-      }
-      const res = !isInWatchlist ? await addToWatchlist(symbol, session.user.id) : await removeFromWatchlist(symbol, session.user.id)
+      const res = !isInWatchlist ? await addToWatchlist(symbol) : await removeFromWatchlist(symbol)
 
       if (!res.success) {
-        throw new Error(error)
+        throw new Error(res.message)
       }
       toast.success(`${!isInWatchlist ? "added" : "removed"} ${symbol} ${!isInWatchlist ? "to" : "from"} watchlist`)
       router.refresh()

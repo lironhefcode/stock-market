@@ -49,14 +49,19 @@ export async function getWatchlistSymbolsByEmail(email: string): Promise<string[
     return []
   }
 }
-export async function addToWatchlist(symbol: string, userId: string) {
+export async function addToWatchlist(symbol: string) {
   try {
     const mongoose = await connectToDatabase()
     const db = mongoose.connection.db
     if (!db) {
       throw new Error("Database connection not established")
     }
-    await Watchlist.create({ userId: userId, symbol: symbol })
+    const res = await getSession()
+    if (!res.success) {
+      throw new Error("no user connection  established")
+    }
+    const { user } = res!.session!
+    await Watchlist.create({ userId: user.id, symbol: symbol })
     return { success: true, message: "added succsesfullt" }
   } catch (error) {
     console.error("Error adding to watchlist:", error)
@@ -64,14 +69,19 @@ export async function addToWatchlist(symbol: string, userId: string) {
   }
 }
 
-export async function removeFromWatchlist(symbol: string, userId: string) {
+export async function removeFromWatchlist(symbol: string) {
   try {
     const mongoose = await connectToDatabase()
     const db = mongoose.connection.db
     if (!db) {
       throw new Error("Database connection not established")
     }
-    const result = await Watchlist.deleteOne({ userId: userId, symbol: symbol })
+    const res = await getSession()
+    if (!res.success) {
+      throw new Error("no user connection  established")
+    }
+    const { user } = res!.session!
+    const result = await Watchlist.deleteOne({ userId: user.id, symbol: symbol })
     if (result.deletedCount === 0) {
       return { success: false, message: "Item not found in watchlist" }
     }
