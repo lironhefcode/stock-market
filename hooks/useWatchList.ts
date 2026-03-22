@@ -41,7 +41,7 @@ export function useRemoveFromWatchlist() {
       queryClient.invalidateQueries({ queryKey: ["watchlist"] })
     },
     onError: () => {
-      toast.error("Failed to remove to watchlist")
+      toast.error("Failed to remove from watchlist")
     },
   })
 }
