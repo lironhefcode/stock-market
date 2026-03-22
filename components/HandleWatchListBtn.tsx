@@ -1,9 +1,10 @@
 "use client"
-import useWatchList from "@/hooks/useWatchList"
+import { useWatchList, useWatchlistChange } from "@/hooks/useWatchList"
 import { Button } from "./ui/button"
 
 function HandleWatchListBtn({ symbol, initialWatchlist }: { symbol: string; initialWatchlist: string[] }) {
-  const { watchlist, handleWatchlistChange } = useWatchList(initialWatchlist)
+  const { data: watchlist } = useWatchList(initialWatchlist)
+  const handleWatchlistChange = useWatchlistChange(watchlist)
   const isInWatchlist = watchlist.find((item) => item === symbol)
 
   return (
