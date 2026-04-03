@@ -6,7 +6,9 @@ import { getWatchlistSymbolsByEmail } from "@/lib/actions/watchlist.actions"
 import { getNews, getStockChange } from "@/lib/actions/finnhub.actions"
 import { getFormattedTodayDate } from "@/lib/utils"
 import { Alert } from "@/db/models/alert"
+import { PushSubscription } from "@/db/models/push-subscription"
 import { connectToDatabase } from "@/db/mongoose"
+import { sendPushNotification } from "@/lib/web-push"
 
 export const sendSignUpEmail = inngest.createFunction({ id: "sign-up-email" }, { event: "app/user.created" }, async ({ event, step }) => {
   const userProfile = `
@@ -217,10 +219,18 @@ export const checkPriceAlerts = inngest.createFunction(
       return result
     })
 
-    const triggeredCount = await step.run("evaluate-and-trigger", async () => {
+    const triggeredAlertDetails = await step.run("evaluate-and-trigger", async () => {
       await connectToDatabase()
-      let triggered = 0
       const now = new Date()
+      const triggered: Array<{
+        id: string
+        userId: string
+        symbol: string
+        alertName: string
+        alertType: string
+        threshold: number
+        price: number
+      }> = []
 
       for (const alert of activeAlerts) {
         const price = quotes[alert.symbol]
@@ -230,7 +240,18 @@ export const checkPriceAlerts = inngest.createFunction(
 
         if (shouldTrigger) {
           await Alert.updateOne({ _id: alert.id, status: "active" }, { $set: { status: "triggered", triggeredAt: now, lastCheckedPrice: price } })
-          triggered++
+          const fullAlert = await Alert.findById(alert.id).lean()
+          if (fullAlert) {
+            triggered.push({
+              id: alert.id,
+              userId: String(fullAlert.userId),
+              symbol: alert.symbol,
+              alertName: String(fullAlert.alertName),
+              alertType: alert.alertType,
+              threshold: alert.threshold,
+              price,
+            })
+          }
         } else {
           await Alert.updateOne({ _id: alert.id }, { $set: { lastCheckedPrice: price } })
         }
@@ -239,6 +260,49 @@ export const checkPriceAlerts = inngest.createFunction(
       return triggered
     })
 
-    return { success: true, message: `Alert check complete`, triggered: triggeredCount }
+    if (triggeredAlertDetails.length > 0) {
+      await step.run("send-push-notifications", async () => {
+        await connectToDatabase()
+
+        const userIds = [...new Set(triggeredAlertDetails.map((a) => a.userId))]
+        const subscriptions = await PushSubscription.find({ userId: { $in: userIds } }).lean()
+
+        const subsByUser = new Map<string, Array<{ endpoint: string; keys: { p256dh: string; auth: string } }>>()
+        for (const sub of subscriptions) {
+          const list = subsByUser.get(sub.userId) || []
+          list.push({ endpoint: sub.endpoint, keys: sub.keys })
+          subsByUser.set(sub.userId, list)
+        }
+
+        const expiredEndpoints: string[] = []
+
+        for (const alert of triggeredAlertDetails) {
+          const userSubs = subsByUser.get(alert.userId)
+          if (!userSubs || userSubs.length === 0) continue
+
+          const direction = alert.alertType === "upper" ? "above" : "below"
+          const payload = {
+            title: `${alert.symbol} alert triggered`,
+            body: `${alert.alertName} crossed ${direction} $${alert.threshold.toFixed(2)}. Current price: $${alert.price.toFixed(2)}.`,
+            url: "/",
+            icon: "/assets/icons/web-app-manifest-192x192.png",
+            badge: "/assets/icons/web-app-manifest-192x192.png",
+          }
+
+          for (const sub of userSubs) {
+            const result = await sendPushNotification(sub, payload)
+            if (!result.success && result.expired) {
+              expiredEndpoints.push(sub.endpoint)
+            }
+          }
+        }
+
+        if (expiredEndpoints.length > 0) {
+          await PushSubscription.deleteMany({ endpoint: { $in: expiredEndpoints } })
+        }
+      })
+    }
+
+    return { success: true, message: `Alert check complete`, triggered: triggeredAlertDetails.length }
   },
 )
