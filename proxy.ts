@@ -3,6 +3,9 @@ import { getSessionCookie } from "better-auth/cookies"
 import { auth } from "@/lib/better-auth/auth"
 
 export async function proxy(request: NextRequest) {
+  if (request.nextUrl.pathname.endsWith("/sw.js") || request.nextUrl.pathname.endsWith("/manifest.webmanifest")) {
+    return NextResponse.next()
+  }
   const sessionCookie = getSessionCookie(request)
   const joinCode = request.nextUrl.searchParams.get("inviteCode")
 
