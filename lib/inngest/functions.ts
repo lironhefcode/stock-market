@@ -198,6 +198,8 @@ export const checkPriceAlerts = inngest.createFunction(
       const alerts = await Alert.find({ status: "active" }).lean()
       return alerts.map((a) => ({
         id: String(a._id),
+        userId: String(a.userId),
+        alertName: String(a.alertName),
         symbol: a.symbol,
         alertType: a.alertType,
         threshold: a.threshold,
@@ -231,6 +233,18 @@ export const checkPriceAlerts = inngest.createFunction(
         threshold: number
         price: number
       }> = []
+      const bulkUpdates: Array<{
+        updateOne: {
+          filter: { _id: string }
+          update: {
+            $set: {
+              status?: "triggered"
+              triggeredAt?: Date
+              lastCheckedPrice: number
+            }
+          }
+        }
+      }> = []
 
       for (const alert of activeAlerts) {
         const price = quotes[alert.symbol]
@@ -239,22 +253,33 @@ export const checkPriceAlerts = inngest.createFunction(
         const shouldTrigger = (alert.alertType === "upper" && price >= alert.threshold) || (alert.alertType === "lower" && price <= alert.threshold)
 
         if (shouldTrigger) {
-          await Alert.updateOne({ _id: alert.id, status: "active" }, { $set: { status: "triggered", triggeredAt: now, lastCheckedPrice: price } })
-          const fullAlert = await Alert.findById(alert.id).lean()
-          if (fullAlert) {
-            triggered.push({
-              id: alert.id,
-              userId: String(fullAlert.userId),
-              symbol: alert.symbol,
-              alertName: String(fullAlert.alertName),
-              alertType: alert.alertType,
-              threshold: alert.threshold,
-              price,
-            })
-          }
+          bulkUpdates.push({
+            updateOne: {
+              filter: { _id: alert.id },
+              update: { $set: { status: "triggered", triggeredAt: now, lastCheckedPrice: price } },
+            },
+          })
+          triggered.push({
+            id: alert.id,
+            userId: alert.userId,
+            symbol: alert.symbol,
+            alertName: alert.alertName,
+            alertType: alert.alertType,
+            threshold: alert.threshold,
+            price,
+          })
         } else {
-          await Alert.updateOne({ _id: alert.id }, { $set: { lastCheckedPrice: price } })
+          bulkUpdates.push({
+            updateOne: {
+              filter: { _id: alert.id },
+              update: { $set: { lastCheckedPrice: price } },
+            },
+          })
         }
+      }
+
+      if (bulkUpdates.length > 0) {
+        await Alert.bulkWrite(bulkUpdates)
       }
 
       return triggered
